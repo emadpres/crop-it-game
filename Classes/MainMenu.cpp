@@ -11,7 +11,7 @@ USING_NS_CC;
 
 bool MainMenu::init()
 {
-    if ( !LayerColor::initWithColor(Color4B::RED))
+    if ( !LayerColor::initWithColor(Color4B::MAGENTA))
     {
         return false;
     }
@@ -44,13 +44,22 @@ bool MainMenu::init()
     addChild(playButton);
     playButton->setScale(4.0f);
 
-    auto soundButton = ui::Button::create("CloseSelected.png");
+    auto soundButton = ui::Button::create("Sound.png");
     auto soundButtonContentSize = soundButton->getContentSize();
-    //soundButton->setPosition(Vec2(origin.x + visibleSize.width - soundButtonContentSize.width / 2,
-    //        origin.y + soundButtonContentSize.height / 2));
-    soundButton->setPosition(visibleSize / 2);
+    soundButton->setPosition(Vec2(origin.x + visibleSize.width - 2.0f * soundButtonContentSize.width,
+            origin.y + 2.0f * soundButtonContentSize.height));
     addChild(soundButton);
     soundButton->setScale(4.0f);
+
+    if (!GameOptions::getInstance()->getSoundStatus())
+        soundButton->setColor(Color3B::RED);
+
+    auto creditButton = ui::Button::create("Credit.png");
+    auto creditButtonContentSize = creditButton->getContentSize();
+    creditButton->setPosition(Vec2(origin.x + creditButtonContentSize.width,
+            origin.y + creditButtonContentSize.height));
+    addChild(creditButton);
+    creditButton->setScale(2.0f);
 
     return true;
 }

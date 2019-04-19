@@ -40,7 +40,7 @@ set(GAME_SOURCE Classes/GameOptions.cpp Classes/GameOptions.h Classes/UserData.c
 set(GAME_HEADER Classes/GameOptions.cpp Classes/GameOptions.h Classes/UserData.cpp Classes/UserData.h Classes/HelperFunctions.cpp Classes/HelperFunctions.h)
 
 set(GAME_RES_FOLDER
-    "Resources"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
     )
 if(APPLE OR WINDOWS)
     cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
