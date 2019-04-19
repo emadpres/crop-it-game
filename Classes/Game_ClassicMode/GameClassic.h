@@ -26,10 +26,19 @@ private:
     void InitialGameArea();
 
     cocos2d::Vec2 GetGameAreaCenter();
+    cocos2d::Rect GetGameAreaRect();
+    cocos2d::Vec2 GetCropperOriginalPos();
 
     void InitialBall();
 
     int GetGameAreaSquareWidth();
+
+    void BreakSegment(std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>>::iterator it, float breakRatio);
+
+    void InitCropper();
+
+    void Crop(cocos2d::Vec2 pos, int dir);
+    int Crop(cocos2d::Vec2 star, cocos2d::Vec2 end);
 };
 
 
