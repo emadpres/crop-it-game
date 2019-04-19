@@ -24,6 +24,8 @@
 
 #include "AppDelegate.h"
 #include "MainMenu.h"
+#include "GameOptions.h"
+#include "UserData.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -93,12 +95,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
     }
 
-    director->setDisplayStats(true);
+    director->setDisplayStats(false);
     director->setAnimationInterval(1.0f / 60);
 
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
     auto frameSize = glview->getFrameSize();
     director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
+
+    setGameOptions();
+    setUserData();
 
     register_all_packages();
 
@@ -132,3 +137,26 @@ void AppDelegate::applicationWillEnterForeground() {
     SimpleAudioEngine::getInstance()->resumeAllEffects();
 #endif
 }
+
+void AppDelegate::setGameOptions()
+{
+    GameOptions::getInstance()->setMainFont("fonts/Marker Felt.ttf");
+    auto gitUrl = "https://github.com/emadpres/CropItGame";
+    auto mojiUrl = "https://github.com/meslahik";
+    auto emadUrl = "https://github.com/emadpres";
+    auto vahieUrl = "https://github.com/vahid-heidaripour";
+    GameOptions::getInstance()->pushToUrlVector(gitUrl);
+    GameOptions::getInstance()->pushToUrlVector(emadUrl);
+    GameOptions::getInstance()->pushToUrlVector(mojiUrl);
+    GameOptions::getInstance()->pushToUrlVector(vahieUrl);
+
+    auto soundStatus = UserDefault::getInstance()->getBoolForKey("CROPIT_GAME_SOUND", true);
+    GameOptions::getInstance()->setSoundStatus(soundStatus);
+}
+
+void AppDelegate::setUserData()
+{
+    auto highScore = UserDefault::getInstance()->getIntegerForKey("CROPIT_HIGH_SCORE", 0);
+    UserData::getInstance()->setHighScore(highScore);
+}
+

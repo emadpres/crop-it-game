@@ -37,8 +37,16 @@ add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 
 # record sources, headers, resources...
 set(GAME_SOURCE
+        Classes/Credit.cpp
+        Classes/GameOptions.cpp
+        Classes/UserData.cpp
+        Classes/HelperFunctions.cpp
         Classes/Game_ClassicMode/Ball.cpp)
 set(GAME_HEADER
+        Classes/Credit.h
+        Classes/GameOptions.h
+        Classes/UserData.h
+        Classes/HelperFunctions.h
         Classes/Game_ClassicMode/Ball.h)
 
 set(GAME_RES_FOLDER
