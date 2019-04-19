@@ -26,6 +26,7 @@
 #include "MainMenu.h"
 #include "GameOptions.h"
 #include "UserData.h"
+#include "SimpleAudioEngine.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -101,8 +102,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setContentScaleFactor(MIN(mediumResolutionSize.height / designResolutionSize.height,
                                         mediumResolutionSize.width / designResolutionSize.width));
 
-    setGameOptions();
-    setUserData();
+    SetGameOptions();
+    SetUserData();
 
     register_all_packages();
 
@@ -137,7 +138,8 @@ void AppDelegate::applicationWillEnterForeground() {
 #endif
 }
 
-void AppDelegate::setGameOptions() {
+void AppDelegate::SetGameOptions()
+{
     GameOptions::getInstance()->setMainFont("fonts/Marker Felt.ttf");
     auto gitUrl = "https://github.com/emadpres/CropItGame";
     auto mojiUrl = "https://github.com/meslahik";
@@ -150,10 +152,14 @@ void AppDelegate::setGameOptions() {
 
     auto soundStatus = UserDefault::getInstance()->getBoolForKey("CROPIT_GAME_SOUND", true);
     GameOptions::getInstance()->setSoundStatus(soundStatus);
+
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->setEffectsVolume(soundStatus ? 1.0f : 0.0f);
 }
 
-void AppDelegate::setUserData() {
+
+void AppDelegate::SetUserData()
+{
     auto highScore = UserDefault::getInstance()->getIntegerForKey("CROPIT_HIGH_SCORE", 0);
     UserData::getInstance()->setHighScore(highScore);
 }
-

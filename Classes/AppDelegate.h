@@ -60,8 +60,8 @@ public:
     virtual void applicationWillEnterForeground();
 
 private:
-    void setGameOptions();
-    void setUserData();
+    void SetGameOptions();
+    void SetUserData();
 };
 
 #endif // _APP_DELEGATE_H_
