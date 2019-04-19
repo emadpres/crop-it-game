@@ -42,7 +42,8 @@ void GameClassic::InitialGameArea() {
     drawingNode->drawSolidRect(center + Vec2(-SEG_LEN, -SEG_LEN), center + Vec2(+SEG_LEN, +SEG_LEN),
                                Color4F(50, 50, 50, 0.4));
     /////////////////
-    CreateShape_InitialSquare();
+    //CreateShape_InitialSquare();
+    //CreateShape_InitialSquare();
     CreateShape_Custom1();
 }
 
@@ -89,20 +90,19 @@ void GameClassic::CreateShape_Custom1() {
 
 void GameClassic::InitialBall() {
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-    _ball = Ball::create("ball.png");
-    _ball->setPosition(GetGameAreaCenter());
-    _ball->SetVelocity(Vec2(40,30));
+    _ball = Ball::create("ball.png", &_segments);
+    _ball->setPosition(GetGameAreaCenter() + Vec2(100, 100));
+    _ball->SetVelocity(Vec2(500,110));
     addChild(_ball);
 
     schedule([&](float dt)
     {
-        Vec2 newPos = _ball->EstimateMove(dt);
-        _ball->setPosition(newPos);
-        }, 1.0/30, "ball_tick");
+        _ball->MoveBall(dt);
+        }, 1.0/60, "ball_tick");
 
-    schedule([&](float dt)
-             {
-                 _ball->SetVelocity(Vec2((GetRand01()-0.5)*120, (GetRand01()-0.5)*120));
-             }, 1, "ball_tick_velo");
+//    schedule([&](float dt)
+//             {
+//                 _ball->SetVelocity(Vec2((GetRand01()-0.5)*120, (GetRand01()-0.5)*120));
+//             }, 1, "ball_tick_velo");
 
 }
