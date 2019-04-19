@@ -83,10 +83,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        const Size deviceResolution169 = Size(1080, 1920);
-        const Size deviceResolution43 = Size(1536, 2048);
-        glview = GLViewImpl::createWithRect("Crop It", cocos2d::Rect(0, 0, deviceResolution169.width, deviceResolution169.height));
-        glview->setFrameZoomFactor( 650.f / glview->getFrameSize().height);
+        const Size deviceResolution169 = Size(405,720);//Size(1080, 1920);
+        const Size deviceResolution43 = Size(512, 682);//Size(1536, 2048);
+        glview = GLViewImpl::createWithRect("Crop It", cocos2d::Rect(0, 0, deviceResolution43.width, deviceResolution43.height));
+        //glview->setFrameZoomFactor( 1/2.0);
 #else
         glview = GLViewImpl::create("Crop It");
 #endif
