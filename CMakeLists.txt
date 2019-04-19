@@ -36,11 +36,11 @@ include(CocosBuildSet)
 add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 
 # record sources, headers, resources...
-set(GAME_SOURCE)
-set(GAME_HEADER)
+set(GAME_SOURCE Classes/GameOptions.cpp Classes/GameOptions.h Classes/UserData.cpp Classes/UserData.h Classes/HelperFunctions.cpp Classes/HelperFunctions.h)
+set(GAME_HEADER Classes/GameOptions.cpp Classes/GameOptions.h Classes/UserData.cpp Classes/UserData.h Classes/HelperFunctions.cpp Classes/HelperFunctions.h)
 
 set(GAME_RES_FOLDER
-    "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+    "Resources"
     )
 if(APPLE OR WINDOWS)
     cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
