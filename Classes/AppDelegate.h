@@ -61,6 +61,7 @@ public:
 
 private:
     void setGameOptions();
+    void setUserData();
 };
 
 #endif // _APP_DELEGATE_H_

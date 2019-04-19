@@ -25,6 +25,7 @@
 #include "AppDelegate.h"
 #include "MainMenu.h"
 #include "GameOptions.h"
+#include "UserData.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -102,6 +103,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
 
     setGameOptions();
+    setUserData();
 
     register_all_packages();
 
@@ -148,6 +150,13 @@ void AppDelegate::setGameOptions()
     GameOptions::getInstance()->pushToUrlVector(mojiUrl);
     GameOptions::getInstance()->pushToUrlVector(vahieUrl);
 
-    auto soundStatus = UserDefault::getInstance()->getBoolForKey("GAME_SOUND", true);
+    auto soundStatus = UserDefault::getInstance()->getBoolForKey("CROPIT_GAME_SOUND", true);
     GameOptions::getInstance()->setSoundStatus(soundStatus);
 }
+
+void AppDelegate::setUserData()
+{
+    auto highScore = UserDefault::getInstance()->getIntegerForKey("CROPIT_HIGH_SCORE", 0);
+    UserData::getInstance()->setHighScore(highScore);
+}
+
