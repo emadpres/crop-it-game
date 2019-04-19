@@ -55,6 +55,22 @@ bool MainMenu::init()
     if (!GameOptions::getInstance()->getSoundStatus())
         soundButton->setColor(Color3B::RED);
 
+    soundButton->addClickEventListener([&](Ref* sender){
+        auto button = static_cast<ui::Button*>(sender);
+        if (GameOptions::getInstance()->getSoundStatus())
+        {
+            button->setColor(Color3B::RED);
+            CocosDenshion::SimpleAudioEngine::getInstance()->setEffectsVolume(0.0f);
+            GameOptions::getInstance()->setSoundStatus(false);
+        }
+        else
+        {
+            button->setColor(Color3B::WHITE);
+            CocosDenshion::SimpleAudioEngine::getInstance()->setEffectsVolume(1.0f);
+            GameOptions::getInstance()->setSoundStatus(true);
+        }
+    });
+
     auto creditButton = ui::Button::create("Credit.png");
     auto creditButtonContentSize = creditButton->getContentSize();
     creditButton->setPosition(Vec2(origin.x + creditButtonContentSize.width,
