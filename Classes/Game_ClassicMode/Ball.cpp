@@ -36,3 +36,7 @@ cocos2d::Vec2 Ball::EstimateMove(float deltaTime) const {
     return next;
 }
 
+void Ball::SetVelocity(Vec2 v) {
+    _velocity = v;
+}
+

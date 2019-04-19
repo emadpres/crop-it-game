@@ -2,6 +2,7 @@
 #include "ui/CocosGUI.h"
 #include "SimpleAudioEngine.h"
 #include "Ball.h"
+#include "HelperFunctions.h"
 
 
 USING_NS_CC;
@@ -25,7 +26,10 @@ bool GameClassic::init() {
     addChild(drawingNode);
     InitialGameArea();
     InitialBall();
+
     RenderSegment();
+
+
 
 
     return true;
@@ -86,11 +90,19 @@ void GameClassic::CreateShape_Custom1() {
 void GameClassic::InitialBall() {
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     _ball = Ball::create("ball.png");
-    _ball->setPosition(origin + _ball->getContentSize() / 2);
-    addChild(_ball, 1000);
+    _ball->setPosition(GetGameAreaCenter());
+    _ball->SetVelocity(Vec2(40,30));
+    addChild(_ball);
 
-    schedule([&](float dt) {
+    schedule([&](float dt)
+    {
         Vec2 newPos = _ball->EstimateMove(dt);
         _ball->setPosition(newPos);
-    }, 1.0 / 60, "ball_tick");
+        }, 1.0/30, "ball_tick");
+
+    schedule([&](float dt)
+             {
+                 _ball->SetVelocity(Vec2((GetRand01()-0.5)*120, (GetRand01()-0.5)*120));
+             }, 1, "ball_tick_velo");
+
 }

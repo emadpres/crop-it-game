@@ -49,12 +49,10 @@ static cocos2d::Size designResolutionSize = cocos2d::Size(720, 1140);
 static cocos2d::Size mediumResolutionSize = cocos2d::Size(720, 1140);
 //static cocos2d::Size largeResolutionSize = cocos2d::Size(1536, 2048);
 
-AppDelegate::AppDelegate()
-{
+AppDelegate::AppDelegate() {
 }
 
-AppDelegate::~AppDelegate() 
-{
+AppDelegate::~AppDelegate() {
 #if USE_AUDIO_ENGINE
     AudioEngine::end();
 #elif USE_SIMPLE_AUDIO_ENGINE
@@ -64,8 +62,7 @@ AppDelegate::~AppDelegate()
 
 // if you want a different context, modify the value of glContextAttrs
 // it will affect all platforms
-void AppDelegate::initGLContextAttrs()
-{
+void AppDelegate::initGLContextAttrs() {
     // set OpenGL context attributes: red,green,blue,alpha,depth,stencil,multisamplesCount
     GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8, 0};
 
@@ -74,8 +71,7 @@ void AppDelegate::initGLContextAttrs()
 
 // if you want to use the package manager to install more packages,  
 // don't modify or remove this function
-static int register_all_packages()
-{
+static int register_all_packages() {
     return 0; //flag for packages manager
 }
 
@@ -83,11 +79,12 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
-    if(!glview) {
+    if (!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        const Size deviceResolution169 = Size(405,720);//Size(1080, 1920);
+        const Size deviceResolution169 = Size(405, 720);//Size(1080, 1920);
         const Size deviceResolution43 = Size(512, 682);//Size(1536, 2048);
-        glview = GLViewImpl::createWithRect("Crop It", cocos2d::Rect(0, 0, deviceResolution43.width, deviceResolution43.height));
+        glview = GLViewImpl::createWithRect("Crop It",
+                                            cocos2d::Rect(0, 0, deviceResolution43.width, deviceResolution43.height));
         //glview->setFrameZoomFactor( 1/2.0);
 #else
         glview = GLViewImpl::create("Crop It");
@@ -98,9 +95,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setDisplayStats(false);
     director->setAnimationInterval(1.0f / 60);
 
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
+    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
+                                    ResolutionPolicy::NO_BORDER);
     auto frameSize = glview->getFrameSize();
-    director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
+    director->setContentScaleFactor(MIN(mediumResolutionSize.height / designResolutionSize.height,
+                                        mediumResolutionSize.width / designResolutionSize.width));
 
     setGameOptions();
     setUserData();
@@ -138,8 +137,7 @@ void AppDelegate::applicationWillEnterForeground() {
 #endif
 }
 
-void AppDelegate::setGameOptions()
-{
+void AppDelegate::setGameOptions() {
     GameOptions::getInstance()->setMainFont("fonts/Marker Felt.ttf");
     auto gitUrl = "https://github.com/emadpres/CropItGame";
     auto mojiUrl = "https://github.com/meslahik";
@@ -154,8 +152,7 @@ void AppDelegate::setGameOptions()
     GameOptions::getInstance()->setSoundStatus(soundStatus);
 }
 
-void AppDelegate::setUserData()
-{
+void AppDelegate::setUserData() {
     auto highScore = UserDefault::getInstance()->getIntegerForKey("CROPIT_HIGH_SCORE", 0);
     UserData::getInstance()->setHighScore(highScore);
 }

@@ -14,6 +14,8 @@ public:
 
     cocos2d::Vec2 EstimateMove(float deltaTime) const;
 
+    void SetVelocity(cocos2d::Vec2 v);
+
 private:
     cocos2d::Vec2 _velocity;
     cocos2d::Sprite *_ballSprite;

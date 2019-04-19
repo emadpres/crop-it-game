@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <string>
+#include <random>
 
 template <typename T>
 std::string ToString(T t)
@@ -12,5 +13,6 @@ std::string ToString(T t)
     return s.str();
 }
 
+float GetRand01();
 
 #endif //__HELPER_FUNCTIONS_H__
