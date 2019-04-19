@@ -42,7 +42,15 @@ bool MainMenu::init()
         Director::getInstance()->replaceScene(scene);
     });
     addChild(playButton);
-    playButton->setScale(2.0f);
+    playButton->setScale(4.0f);
+
+    auto soundButton = ui::Button::create("CloseSelected.png");
+    auto soundButtonContentSize = soundButton->getContentSize();
+    //soundButton->setPosition(Vec2(origin.x + visibleSize.width - soundButtonContentSize.width / 2,
+    //        origin.y + soundButtonContentSize.height / 2));
+    soundButton->setPosition(visibleSize / 2);
+    addChild(soundButton);
+    soundButton->setScale(4.0f);
 
     return true;
 }
