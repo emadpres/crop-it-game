@@ -42,10 +42,10 @@ using namespace CocosDenshion;
 
 USING_NS_CC;
 
-static cocos2d::Size designResolutionSize = cocos2d::Size(320, 480);
-static cocos2d::Size smallResolutionSize = cocos2d::Size(320, 480);
-static cocos2d::Size mediumResolutionSize = cocos2d::Size(768, 1024);
-static cocos2d::Size largeResolutionSize = cocos2d::Size(1536, 2048);
+static cocos2d::Size designResolutionSize = cocos2d::Size(720, 1140);
+//static cocos2d::Size smallResolutionSize = cocos2d::Size(320, 480);
+static cocos2d::Size mediumResolutionSize = cocos2d::Size(720, 1140);
+//static cocos2d::Size largeResolutionSize = cocos2d::Size(1536, 2048);
 
 AppDelegate::AppDelegate()
 {
@@ -83,37 +83,22 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("CropItGame", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+        const Size deviceResolution169 = Size(1080, 1920);
+        const Size deviceResolution43 = Size(1536, 2048);
+        glview = GLViewImpl::createWithRect("Crop It", cocos2d::Rect(0, 0, deviceResolution169.width, deviceResolution169.height));
+        glview->setFrameZoomFactor( 650.f / glview->getFrameSize().height);
 #else
-        glview = GLViewImpl::create("CropItGame");
+        glview = GLViewImpl::create("Crop It");
 #endif
         director->setOpenGLView(glview);
     }
 
-    // turn on display FPS
     director->setDisplayStats(true);
-
-    // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
 
-    // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
     auto frameSize = glview->getFrameSize();
-    // if the frame's height is larger than the height of medium size.
-    if (frameSize.height > mediumResolutionSize.height)
-    {        
-        director->setContentScaleFactor(MIN(largeResolutionSize.height/designResolutionSize.height, largeResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is larger than the height of small size.
-    else if (frameSize.height > smallResolutionSize.height)
-    {        
-        director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is smaller than the height of medium size.
-    else
-    {        
-        director->setContentScaleFactor(MIN(smallResolutionSize.height/designResolutionSize.height, smallResolutionSize.width/designResolutionSize.width));
-    }
+    director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
 
     register_all_packages();
 
