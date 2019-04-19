@@ -36,8 +36,10 @@ include(CocosBuildSet)
 add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 
 # record sources, headers, resources...
-set(GAME_SOURCE)
-set(GAME_HEADER)
+set(GAME_SOURCE
+        Classes/Game_ClassicMode/Ball.cpp)
+set(GAME_HEADER
+        Classes/Game_ClassicMode/Ball.h)
 
 set(GAME_RES_FOLDER
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
@@ -50,12 +52,12 @@ endif()
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
         Classes/MainMenu.cpp
-        Classes/GameClassic.cpp
+        Classes/Game_ClassicMode/GameClassic.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
         Classes/MainMenu.h
-        Classes/GameClassic.h
+        Classes/Game_ClassicMode/GameClassic.h
      )
 
 if(ANDROID)
