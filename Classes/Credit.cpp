@@ -28,7 +28,6 @@ bool Credit::init()
 
     auto teamMemberButton1 = ui::Button::create("CreditTeam.png");
     teamMemberButton1->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3));
-//    teamMemberButton1->setTitleText("Emad Aghajani");
     teamMemberButton1->addClickEventListener([&](Ref* sender){
         Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[1]);
     });
@@ -40,7 +39,6 @@ bool Credit::init()
 
     auto teamMemberButton2 = ui::Button::create("CreditTeam.png");
     teamMemberButton2->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3-250));
-//    teamMemberButton2->setTitleText("Vahid Heidaripour");
     teamMemberButton2->addClickEventListener([&](Ref* sender){
         Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[3]);
     });
@@ -52,7 +50,6 @@ bool Credit::init()
 
     auto teamMemberButton3 = ui::Button::create("CreditTeam.png");
     teamMemberButton3->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3-500));
-//    teamMemberButton3->setTitleText("Mojtaba Eslahi");
     teamMemberButton3->addClickEventListener([&](Ref* sender){
         Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[2]);
     });
