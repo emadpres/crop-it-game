@@ -6,6 +6,7 @@
 #include "GameOptions.h"
 #include "UserData.h"
 #include "HelperFunctions.h"
+#include "Credit.h"
 
 USING_NS_CC;
 
@@ -60,6 +61,12 @@ bool MainMenu::init()
             origin.y + creditButtonContentSize.height));
     addChild(creditButton);
     creditButton->setScale(2.0f);
+    creditButton->addClickEventListener([&](Ref* sender){
+        auto creditPage = Credit::create();
+        auto scene = Scene::create();
+        scene->addChild(creditPage);
+        Director::getInstance()->replaceScene(scene);
+    });
 
     return true;
 }
