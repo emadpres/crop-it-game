@@ -28,12 +28,8 @@ bool Credit::init()
 
     auto teamMemberButton1 = ui::Button::create("CreditTeam.png");
     teamMemberButton1->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3));
-//    teamMemberButton1->setTitleText("Emad Aghajani");
     teamMemberButton1->addClickEventListener([&](Ref* sender){
-//        auto classic = GameClassic::create();
-//        auto scene = Scene::create();
-//        scene->addChild(classic);
-//        Director::getInstance()->replaceScene(scene);
+        Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[1]);
     });
     addChild(teamMemberButton1);
 
@@ -43,12 +39,8 @@ bool Credit::init()
 
     auto teamMemberButton2 = ui::Button::create("CreditTeam.png");
     teamMemberButton2->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3-250));
-//    teamMemberButton2->setTitleText("Vahid Heidaripour");
     teamMemberButton2->addClickEventListener([&](Ref* sender){
-//        auto classic = GameClassic::create();
-//        auto scene = Scene::create();
-//        scene->addChild(classic);
-//        Director::getInstance()->replaceScene(scene);
+        Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[3]);
     });
     addChild(teamMemberButton2);
 
@@ -58,18 +50,21 @@ bool Credit::init()
 
     auto teamMemberButton3 = ui::Button::create("CreditTeam.png");
     teamMemberButton3->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3-500));
-//    teamMemberButton3->setTitleText("Mojtaba Eslahi");
     teamMemberButton3->addClickEventListener([&](Ref* sender){
-//        auto classic = GameClassic::create();
-//        auto scene = Scene::create();
-//        scene->addChild(classic);
-//        Director::getInstance()->replaceScene(scene);
+        Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[2]);
     });
     addChild(teamMemberButton3);
 
     auto teamMemberLabel3 = Label::createWithSystemFont("Mojtaba Eslahi", GameOptions::getInstance()->getMainFont(), 24);
     teamMemberLabel3->setPosition(origin+visibleSize/2+Vec2(0,visibleSize.height/3-500-80));
     addChild(teamMemberLabel3);
+
+    auto gitButton = ui::Button::create("Github.png");
+    gitButton->setPosition(Vec2(origin.x+100, origin.y+80));
+    gitButton->addClickEventListener([&](Ref* sender){
+        Application::getInstance()->openURL(GameOptions::getInstance()->getUrls()[0]);
+    });
+    addChild(gitButton);
 
     auto backButton = ui::Button::create("BackButton.png");
     backButton->setPosition(Vec2(origin.x+visibleSize.width-100, origin.y+80));
