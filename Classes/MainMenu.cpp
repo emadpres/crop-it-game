@@ -3,6 +3,7 @@
 #include "SimpleAudioEngine.h"
 
 #include "GameClassic.h"
+#include "GameOptions.h"
 
 USING_NS_CC;
 
@@ -16,33 +17,20 @@ bool MainMenu::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
+    auto gameNmae = Label::createWithSystemFont("CropIt!", GameOptions::getInstance().getMainFont(), 36);
+    gameNmae->setPosition(Vec2(origin.x + visibleSize.width/2, origin.y + visibleSize.height - gameNmae->getContentSize().height));
+    addChild(gameNmae);
 
-
-    auto label = Label::createWithTTF("Main Menu", "fonts/Marker Felt.ttf", 24);
-    label->setPosition(Vec2(origin.x + visibleSize.width/2, origin.y + visibleSize.height - label->getContentSize().height));
-    this->addChild(label, 1);
-
-
-    auto button = ui::Button::create("CloseNormal.png", "play.png");
-    button->setPosition(origin+visibleSize/2);
-    button->setTitleText("Play !");
-    button->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type){
-        switch (type)
-        {
-            case ui::Widget::TouchEventType::BEGAN:
-                break;
-            case ui::Widget::TouchEventType::ENDED: {
-                auto classic = GameClassic::create();
-                auto scene = Scene::create();
-                scene->addChild(classic);
-                Director::getInstance()->replaceScene(scene);
-                break;
-            }
-            default:
-                break;
-        }
+    auto playButton = ui::Button::create("PlayButton.png");
+    playButton->setPosition(origin+visibleSize/2);
+    playButton->addClickEventListener([&](Ref* sender){
+        auto classic = GameClassic::create();
+        auto scene = Scene::create();
+        scene->addChild(classic);
+        Director::getInstance()->replaceScene(scene);
     });
-    this->addChild(button,2);
+    addChild(playButton);
+    playButton->setScale(2.0f);
 
     return true;
 }
