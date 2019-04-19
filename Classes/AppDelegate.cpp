@@ -138,16 +138,16 @@ void AppDelegate::applicationWillEnterForeground() {
 
 void AppDelegate::setGameOptions()
 {
-    GameOptions::getInstance().setMainFont("fonts/Marker Felt.ttf");
+    GameOptions::getInstance()->setMainFont("fonts/Marker Felt.ttf");
     auto gitUrl = "https://github.com/emadpres/CropItGame";
     auto mojiUrl = "https://github.com/meslahik";
     auto emadUrl = "https://github.com/emadpres";
     auto vahieUrl = "https://github.com/vahid-heidaripour";
-    GameOptions::getInstance().pushToUrlVector(gitUrl);
-    GameOptions::getInstance().pushToUrlVector(emadUrl);
-    GameOptions::getInstance().pushToUrlVector(mojiUrl);
-    GameOptions::getInstance().pushToUrlVector(vahieUrl);
+    GameOptions::getInstance()->pushToUrlVector(gitUrl);
+    GameOptions::getInstance()->pushToUrlVector(emadUrl);
+    GameOptions::getInstance()->pushToUrlVector(mojiUrl);
+    GameOptions::getInstance()->pushToUrlVector(vahieUrl);
 
     auto soundStatus = UserDefault::getInstance()->getBoolForKey("GAME_SOUND", true);
-    GameOptions::getInstance().setSoundStatus(soundStatus);
+    GameOptions::getInstance()->setSoundStatus(soundStatus);
 }

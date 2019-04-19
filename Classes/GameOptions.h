@@ -6,8 +6,16 @@
 
 class GameOptions
 {
+    static GameOptions* _instance;
+
 public:
-    static GameOptions& getInstance();
+    static GameOptions* getInstance()
+    {
+        if (_instance == nullptr)
+            _instance = new GameOptions();
+
+        return _instance;
+    }
 
     void setSoundStatus(bool status) { _soundStatus = status; }
     bool getSoundStatus() const { return _soundStatus; }

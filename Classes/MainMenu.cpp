@@ -17,7 +17,7 @@ bool MainMenu::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    auto gameNmae = Label::createWithSystemFont("CropIt!", GameOptions::getInstance().getMainFont(), 36);
+    auto gameNmae = Label::createWithSystemFont("CropIt!", GameOptions::getInstance()->getMainFont(), 36);
     gameNmae->setPosition(Vec2(origin.x + visibleSize.width/2, origin.y + visibleSize.height - gameNmae->getContentSize().height));
     addChild(gameNmae);
 
