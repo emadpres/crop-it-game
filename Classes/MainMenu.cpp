@@ -2,7 +2,7 @@
 #include "ui/CocosGUI.h"
 #include "SimpleAudioEngine.h"
 
-#include "GameClassic.h"
+#include "Game_ClassicMode/GameClassic.h"
 
 USING_NS_CC;
 
