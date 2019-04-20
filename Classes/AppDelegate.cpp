@@ -24,6 +24,7 @@
 
 #include "AppDelegate.h"
 #include "MainMenu.h"
+#include "Game_ClassicMode/GameClassic.h"
 #include "GameOptions.h"
 #include "UserData.h"
 #include "SimpleAudioEngine.h"
@@ -93,7 +94,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
     }
 
-    director->setDisplayStats(false);
+    director->setDisplayStats(true);
     director->setAnimationInterval(1.0f / 60);
 
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
@@ -108,7 +109,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     auto scene = Scene::create();
-    scene->addChild(MainMenu::create());
+    scene->addChild(GameClassic::create());
     director->runWithScene(scene);
 
     return true;

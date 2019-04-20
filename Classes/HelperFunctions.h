@@ -17,6 +17,6 @@ std::string ToString(T t)
 
 float GetRand01();
 
-float CalArea(std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> segments);
+int   GetRand1N(int n);
 
 #endif //__HELPER_FUNCTIONS_H__

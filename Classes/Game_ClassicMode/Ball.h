@@ -6,9 +6,11 @@
 
 class Ball : public cocos2d::Node {
 public:
-    static Ball *create(const std::string &filename);
+    static Ball *create(const std::string &filename,
+            const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> * segments);
 
-    Ball(const std::string &filename);
+    Ball(const std::string &filename,
+         const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> * segments);
 
     cocos2d::Vec2 GetVelocity() const { return _velocity; }
 
@@ -16,9 +18,13 @@ public:
 
     void SetVelocity(cocos2d::Vec2 v);
 
+    void MoveBall(float dt);
+
 private:
     cocos2d::Vec2 _velocity;
     cocos2d::Sprite *_ballSprite;
+
+    const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> * _segments;
 };
 
 
