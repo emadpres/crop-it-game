@@ -32,6 +32,8 @@ bool GameClassic::init() {
     InitCropper();
     RenderPolygon();
 
+    CCLOG("%d", (int)(_cropper->getRotation()));
+
     return true;
 }
 
@@ -121,33 +123,35 @@ void GameClassic::InitCropper() {
 
         auto target = static_cast<Sprite *>(event->getCurrentTarget());
         Vec2 locationGlobal = touch->getLocation(); // remember: this position is based on (0,0), not Origin
-        bool inGameArea = GetGameAreaRect().containsPoint(locationGlobal);
         target->stopAllActions();
         target->setScale(1);
         target->setOpacity(255);
-        if (inGameArea) {
+        if (_polygon->IsPointInsidePolygon(locationGlobal)) {
             target->setPosition(GetCropperOriginalPos());
             // target set new direction
 
             int dir = 0;
             auto directionName = _cropper->getName();
-            auto rotation = (int)(_cropper->getRotation());
+            auto rotationNo = (int)(_cropper->getRotation() / 90.0f);
+
+            CCLOG("%d", (int)(_cropper->getRotation()));
+
             if (directionName == "line")
             {
-                if (rotation % 180 == 0)
+                if (rotationNo % 2 == 0)
                     dir = 5;
                 else
                     dir = 6;
             } else
             {
-                if (rotation % 270 == 0)
-                    dir = 4;
-                else if (rotation % 180 == 0)
-                    dir = 3;
-                else if (rotation % 90 == 0)
-                    dir = 2;
-                else
+                if (rotationNo % 4 == 0)
                     dir = 1;
+                else if (rotationNo % 4 == 1)
+                    dir = 2;
+                else if (rotationNo % 4 == 2)
+                    dir = 3;
+                else if (rotationNo % 4 == 3)
+                    dir = 4;
             }
 
             CCLOG("Dir: %d", dir);
@@ -193,6 +197,7 @@ void GameClassic::SetCropper() {
 
     auto imageDireciton = GetInitialDirection();
 
+    _cropper->setRotation(0.0f);
     switch (imageDireciton) {
         case CropperImage::LINE: {
             _cropper->setTexture("cropper_2.png");
