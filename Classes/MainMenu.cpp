@@ -10,7 +10,37 @@
 
 USING_NS_CC;
 
-bool MainMenu::init()
+cocos2d::Scene* MainMenu::createScene(bool isMainMenu)
+{
+    auto scene = cocos2d::Scene::create();
+    auto layer = MainMenu::create(isMainMenu);
+
+    if (layer != nullptr)
+    {
+        scene->addChild(layer);
+        return scene;
+    }
+
+    return nullptr;
+}
+
+MainMenu* MainMenu::create(bool isMainMenu)
+{
+    auto mainScene = new (std::nothrow) MainMenu();
+    if (mainScene && mainScene->init(isMainMenu))
+    {
+        mainScene->autorelease();
+        return mainScene;
+    }
+    else
+    {
+        delete mainScene;
+        mainScene = nullptr;
+        return nullptr;
+    }
+}
+
+bool MainMenu::init(bool isMainMenu)
 {
     if ( !LayerColor::initWithColor(Color4B::MAGENTA))
     {

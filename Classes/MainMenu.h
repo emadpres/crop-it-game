@@ -6,8 +6,11 @@
 class MainMenu : public cocos2d::LayerColor
 {
 public:
-    virtual bool init();
-    CREATE_FUNC(MainMenu);
+    static cocos2d::Scene* createScene(bool isMainMenu);
+    static MainMenu* create(bool isMainScene);
+
+protected:
+    virtual bool init(bool isMainMenu);
 };
 
 #endif // __MAINMENU_LAYER_H__

@@ -69,10 +69,14 @@ bool Credit::init()
     auto backButton = ui::Button::create("BackButton.png");
     backButton->setPosition(Vec2(origin.x+visibleSize.width-100, origin.y+80));
     backButton->addClickEventListener([&](Ref* sender){
-        auto main = MainMenu::create();
-        auto scene = Scene::create();
-        scene->addChild(main);
-        Director::getInstance()->replaceScene(scene);
+        auto mainScene = MainMenu::createScene(true);
+        if (mainScene != nullptr)
+            Director::getInstance()->replaceScene(mainScene);
+
+//        auto main = MainMenu::create();
+//        auto scene = Scene::create();
+//        scene->addChild(main);
+//        Director::getInstance()->replaceScene(scene);
     });
     addChild(backButton);
 

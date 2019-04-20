@@ -107,9 +107,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
-    auto scene = Scene::create();
-    scene->addChild(MainMenu::create());
-    director->runWithScene(scene);
+    //auto scene = Scene::create();
+    //scene->addChild(MainMenu::create());
+    //director->runWithScene(scene);
+
+    auto mainScene = MainMenu::createScene(true);
+    if (mainScene != nullptr)
+        director->runWithScene(mainScene);
 
     return true;
 }
