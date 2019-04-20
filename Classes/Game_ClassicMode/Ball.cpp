@@ -90,7 +90,7 @@ void Ball::MoveBall(float dt)
             else if (seg.first.y == seg.second.y)
                 _velocity.y *= -1.0f;
 
-            CCLOG("INTERSECT!!!");
+            //CCLOG("INTERSECT!!!");
             break;
         }
     }
