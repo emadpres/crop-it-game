@@ -3,6 +3,7 @@
 #include "SimpleAudioEngine.h"
 #include "Ball.h"
 #include "HelperFunctions.h"
+#include "Geometry/Polygon.h"
 
 
 USING_NS_CC;
@@ -22,14 +23,14 @@ bool GameClassic::init() {
             Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - label->getContentSize().height));
     this->addChild(label);
 
-    drawingNode = DrawNode::create();
-    addChild(drawingNode);
+    _drawingNode = DrawNode::create();
+    addChild(_drawingNode);
     InitialGameArea();
     InitialBall();
     InitCropper();
 
 
-    RenderSegment();
+    RenderPolygon();
 
 
     auto soundButton = ui::Button::create("Sound.png");
@@ -40,7 +41,7 @@ bool GameClassic::init() {
     soundButton->setScale(4.0f);
     soundButton->addClickEventListener([&](Ref*){
 //        BreakSegment(0,0.3);
-//        RenderSegment();
+//        RenderPolygon();
     });
 
 
@@ -51,10 +52,12 @@ bool GameClassic::init() {
 void GameClassic::InitialGameArea() {
     ///////////////// Transparent Square Background (Game Area Shadow)
     const auto gameAreaRect = GetGameAreaRect();
-    drawingNode->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin+gameAreaRect.size, Color4F(50, 50, 50, 0.4));
+    _drawingNode->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin+gameAreaRect.size, Color4F(50, 50, 50, 0.4));
     /////////////////
-    CreateShape_InitialSquare();
-    //CreateShape_Custom1();
+    _polygon = new Polygon();
+    int w = GetGameAreaSquareWidth();
+    _polygon->Initial_Square(GetGameAreaCenter()-Vec2(w/2,w/2), w);
+    //_polygon->Initial_Custom1(GetGameAreaCenter()-Vec2(w/2,w/2), w);
 }
 
 Vec2 GameClassic::GetGameAreaCenter() {
@@ -68,39 +71,15 @@ int GameClassic::GetGameAreaSquareWidth() {
     return 270*2;
 }
 
-void GameClassic::RenderSegment() {
-    drawingNode->clear();
-    for (pair<Vec2, Vec2> &seg: _segments) {
-        drawingNode->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
-        drawingNode->drawSolidCircle(seg.first,5,0,5,Color4F::YELLOW);
-        drawingNode->drawSolidCircle(seg.second,5,0,5,Color4F::RED);
+void GameClassic::RenderPolygon() {
+    _drawingNode->clear();
+    for (const pair<Vec2, Vec2> &seg: _polygon->GetSegments()) {
+        _drawingNode->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
+        _drawingNode->drawSolidCircle(seg.first,5,0,5,Color4F::YELLOW);
+        _drawingNode->drawSolidCircle(seg.second,5,0,5,Color4F::RED);
     }
 }
 
-void GameClassic::CreateShape_InitialSquare() {
-
-    const auto center = GetGameAreaCenter();
-    const auto SEG_LEN = GetGameAreaSquareWidth();
-
-    _segments.clear();
-    _segments.push_back(make_pair(center + Vec2(-SEG_LEN/2, +SEG_LEN/2), center + Vec2(+SEG_LEN/2, +SEG_LEN/2)));
-    _segments.push_back(make_pair(center + Vec2(+SEG_LEN/2, +SEG_LEN/2), center + Vec2(+SEG_LEN/2, -SEG_LEN/2)));
-    _segments.push_back(make_pair(center + Vec2(+SEG_LEN/2, -SEG_LEN/2), center + Vec2(-SEG_LEN/2, -SEG_LEN/2)));
-    _segments.push_back(make_pair(center + Vec2(-SEG_LEN/2, -SEG_LEN/2), center + Vec2(-SEG_LEN/2, +SEG_LEN/2)));
-}
-
-void GameClassic::CreateShape_Custom1() {
-    const auto center = GetGameAreaCenter();
-    const auto SEG_LEN = GetGameAreaSquareWidth();
-
-    _segments.clear();
-    _segments.push_back(make_pair(center + Vec2(-SEG_LEN, +SEG_LEN), center + Vec2(+SEG_LEN, +SEG_LEN)));
-    _segments.push_back(make_pair(center + Vec2(+SEG_LEN, +SEG_LEN), center + Vec2(+SEG_LEN, -SEG_LEN)));
-    _segments.push_back(make_pair(center + Vec2(+SEG_LEN, -SEG_LEN), center + Vec2(0, -SEG_LEN)));
-    _segments.push_back(make_pair(center + Vec2(0, -SEG_LEN), center + Vec2(0, 0)));
-    _segments.push_back(make_pair(center + Vec2(0, 0), center + Vec2(-SEG_LEN, 0)));
-    _segments.push_back(make_pair(center + Vec2(-SEG_LEN, 0), center + Vec2(-SEG_LEN, +SEG_LEN)));
-}
 
 void GameClassic::InitialBall() {
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -120,24 +99,6 @@ void GameClassic::InitialBall() {
                  _ball->SetVelocity(Vec2((GetRand01()-0.5)*120, (GetRand01()-0.5)*120));
              }, 1, "ball_tick_velo");
 
-}
-
-void GameClassic::BreakSegment(list<pair<Vec2, Vec2>>::iterator it, float breakRatio)
-{
-//    list<pair<Vec2, Vec2>>::iterator it = _segments.begin();
-//    int cur = 0;
-//    while(cur!=segIndex && it!= _segments.end()) {
-//        it++;
-//        cur++;
-//    }
-    Vec2 start = (*it).first;
-    Vec2 end = (*it).second;
-    (*it).second.x = start.x+(end.x-start.x)*breakRatio;
-    (*it).second.y = start.y+(end.y-start.y)*breakRatio;
-    auto updatedEnd = (*it).second;
-    it++;
-    _segments.insert(it,make_pair(updatedEnd, end));
-    CCLOG("New number of segments: %d", _segments.size());
 }
 
 Vec2 GameClassic::GetCropperOriginalPos()
@@ -184,7 +145,8 @@ void GameClassic::InitCropper() {
         if(inGameArea)
         {
             target->setPosition(GetCropperOriginalPos());
-            Crop(locationGlobal,1);
+            _polygon->Crop(locationGlobal,1);
+            RenderPolygon();
         }
         else
         {
@@ -207,56 +169,4 @@ cocos2d::Rect GameClassic::GetGameAreaRect() {
     ///////////////// Transparent Square Background (Game Area Shadow)
 
     return Rect(center + Vec2(-SEG_LEN/2, -SEG_LEN/2),Size(+SEG_LEN,SEG_LEN));
-}
-
-
-void GameClassic::Crop(cocos2d::Vec2 pos, int dir)
-{
-    int first = Crop(pos, pos+Vec2(1000,0));
-    int second = Crop(pos, pos+Vec2(0,-1000));
-    if(second<first) {
-        int t = first;
-        first = second;
-        second = t+1;
-    }
-
-    std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> _newSegments;
-    bool keepInnerPart = true;
-    int i =0;
-    for (const auto &seg: _segments)
-    {
-        if(keepInnerPart) {
-            if(i>first && i<=second)
-                _newSegments.push_back(seg);
-
-        }
-        i++;
-    }
-
-    _segments.clear();
-    for (const auto &seg: _newSegments)
-        _segments.push_back(seg);
-
-    RenderSegment();
-
-}
-
-int GameClassic::Crop(cocos2d::Vec2 start, cocos2d::Vec2 end)
-{
-    float s,t;
-    int breakIndex = 0;
-    auto it = _segments.begin();
-    while (it!=_segments.end()) {
-        if(Vec2::isLineIntersect(start, end, (*it).first, (*it).second, &s, &t))
-        {
-            if(s>=0 && t>=0 && s<=1 && t<=1) {
-                BreakSegment(it, t);
-                break;
-            }
-
-        }
-        it++;
-        breakIndex++;
-    }
-    return breakIndex;
 }
