@@ -7,11 +7,35 @@ using namespace std;
 Polygon::Polygon(Vec2 origin, Size area):_origin(origin), _area(area)  {
 }
 
+Polygon::Polygon(const Polygon &p){
+    this->_origin = p._origin;
+    this->_area = p._area;
+
+    for (const auto &seg: p._segments)
+        AddSegment(seg);
+}
+
+Polygon &Polygon::operator=(const Polygon &second) {
+
+    this->_origin = second._origin;
+    this->_area = second._area;
+
+    _segments.clear();
+    for (const auto &seg: second._segments)
+        AddSegment(seg);
+
+    return (*this);
+}
+
 void Polygon::AddSegment(seg_t seg) {
     _segments.push_back(seg);
 }
 
 const segList_t &Polygon::GetSegments() const {
+    return _segments;
+}
+
+segList_t &Polygon::GetSegments() {
     return _segments;
 }
 
@@ -50,6 +74,18 @@ int Polygon::RayCount(Vec2 startPos, Vec2 dir) const {
     return count;
 }
 
+Vec2 Polygon::RayPos(Vec2 startPos, Vec2 dir)
+{
+    segListIterator_t it = Ray(startPos, dir);
+    if (it!=_segments.end()) {
+        float r = FindIntersectionPoint(startPos, startPos + dir * 1000, it->first, it->second);
+        return Vec2(it->first.x+r*(it->second.x-it->first.x),
+                    it->first.y+r*(it->second.y-it->first.y));
+    } else
+        return Vec2::ZERO;
+}
+
+
 segListIterator_t Polygon::Ray(Vec2 startPos, Vec2 dir) {
     segListIterator_t nearestSeg_it = _segments.end();
     float nearestSeg_s = 1.1f;
@@ -78,12 +114,15 @@ Vec2 Polygon::BreakSegment(segListIterator_t it, float breakRatio) {
     auto firstPartEnd = (*it).second;
     it++;
     _segments.insert(it, make_pair(firstPartEnd, end));
-    CCLOG("New number of segments: %zu", _segments.size());
+    //CCLOG("New number of segments: %zu", _segments.size());
 
     return firstPartEnd;
 }
 
-float Polygon::CalcCutPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) const {
+/*
+ * Returns t, the ration on the second line: intersection.x = b_start.x+t*(b_end.x-b_start.x)
+ */
+float Polygon::FindIntersectionPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) const {
     float s, t;
     if (Vec2::isLineIntersect(a_start, a_end, b_start, b_end, &s, &t)) {
         if (s >= 0 && t >= 0 && s <= 1 && t <= 1) {
@@ -133,11 +172,11 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
 
     it1 = Ray(pos, dir1);
-    float r = CalcCutPoint(pos, pos + dir1 * 1000, it1->first, it1->second);
+    float r = FindIntersectionPoint(pos, pos + dir1 * 1000, it1->first, it1->second);
     rayCollisionPoint1 = BreakSegment(it1, r);
 
     it2 = Ray(pos, dir2);
-    r = CalcCutPoint(pos, pos + dir2 * 1000, it2->first, it2->second);
+    r = FindIntersectionPoint(pos, pos + dir2 * 1000, it2->first, it2->second);
     rayCollisionPoint2 = BreakSegment(it2, r);
 
     Polygon *poly1;
@@ -197,13 +236,7 @@ bool Polygon::IsPointInsidePolygon(Vec2 point) const {
 }
 
 
-Polygon &Polygon::operator=(const Polygon &second) {
-    _segments.clear();
-    for (const auto &seg: second._segments)
-        AddSegment(seg);
 
-    return (*this);
-}
 
 float Polygon::CalcArea() {
 
@@ -215,12 +248,22 @@ float Polygon::CalcArea() {
 }
 
 
-TransformInfo* Polygon::EstimateScaleUp()
+void Polygon::ScaleUp(TransformInfo *ti)
 {
 
+    for (auto &seg: _segments) {
+
+        ti->TranformVec2(seg.first);
+        ti->TranformVec2(seg.second);
+    }
+
+}
+
+TransformInfo* Polygon::EstimateScaleUp()
+{
     float newArea = this->CalcArea();
-    CCLOG("New Area: %f", newArea);
-    if(newArea > 0.5*_area.width*_area.height)
+    //CCLOG("New Area: %f", newArea);
+    if(newArea > 0.75*_area.width*_area.height)
         return nullptr;
 
 
@@ -233,22 +276,16 @@ TransformInfo* Polygon::EstimateScaleUp()
     float hScale = _area.height/polyheight;
 
     float scaleFactor = min(wScale, hScale);
-    CCLOG("Scaling x%f", scaleFactor);
+    if(scaleFactor<=1.02)
+        return nullptr;
+    //CCLOG("Scaling x%f", scaleFactor);
 
     float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
     float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
 
-//    for (auto &seg: _segments) {
-//        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-//        seg.first.y = (seg.first.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
-//
-//        seg.second.x = (seg.second.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-//        seg.second.y = (seg.second.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
-//    }
+    auto t = new TransformInfo(_origin, x_min, y_min, x_max-x_min, y_max-y_min, scaleFactor,_area);
 
-    //Vec2 newBallPos = Vec2((ballPos.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint,(ballPos.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint);
-
-    return nullptr;
+    return t;
 }
 
 void Polygon::FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max)

@@ -15,11 +15,16 @@ class Polygon {
 public:
     Polygon(cocos2d::Vec2 origin, cocos2d::Size area);
 
+    Polygon(const Polygon &p);
+
+    Polygon &operator=(const Polygon &second);
+
     void Initial_Square(cocos2d::Vec2 leftBottom, int width);
 
     void Initial_Custom1(cocos2d::Vec2 leftBottom, int width);
 
     const segList_t &GetSegments() const;
+    segList_t &GetSegments();
 
     void AddSegment(seg_t seg);
 
@@ -29,9 +34,8 @@ public:
 
     float CalcArea();
 
-    Polygon &operator=(const Polygon &second);
-
     TransformInfo* EstimateScaleUp();
+    void ScaleUp(TransformInfo *ti);
 
 private:
     cocos2d::Vec2 _origin;
@@ -40,9 +44,11 @@ private:
 
     segListIterator_t Ray(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
 
+    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
+
     int RayCount(cocos2d::Vec2 startPos, cocos2d::Vec2 dir) const;
 
-    float CalcCutPoint(cocos2d::Vec2 a_start, cocos2d::Vec2 a_end, cocos2d::Vec2 b_start, cocos2d::Vec2 b_end) const;
+    float FindIntersectionPoint(cocos2d::Vec2 a_start, cocos2d::Vec2 a_end, cocos2d::Vec2 b_start, cocos2d::Vec2 b_end) const;
 
     void FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max);
 

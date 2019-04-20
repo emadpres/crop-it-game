@@ -2,6 +2,7 @@
 #define __GAME_CLASSIC_H__
 
 #include "cocos2d.h"
+#include "Geometry/TransformInfo.h"
 
 class Ball;
 class Polygon;
@@ -52,6 +53,12 @@ private:
     cocos2d::Node *_arrows;
     bool _isRotatable;
     cocos2d::Label *_tapLabel;
+
+    TransformInfo* _polyTransformInfo;
+    Polygon *_targetPolyAfterAnimation;
+    cocos2d::Vec2 _targetBallPos;
+
+    void IntialBallMovement();
 };
 
 
