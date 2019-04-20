@@ -5,8 +5,8 @@ USING_NS_CC;
 using namespace std;
 
 Ball::Ball(const std::string &filename,
-           const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> * segments)
-           : _velocity(40, 40), _segments(segments) {
+           const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> *segments)
+        : _velocity(40, 40), _segments(segments) {
     setAnchorPoint(Vec2::ZERO);
 
     _ballSprite = Sprite::create(filename);
@@ -23,7 +23,7 @@ Ball::Ball(const std::string &filename,
 
 
 Ball *Ball::create(const std::string &filename,
-                   const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> * segments) {
+                   const std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>> *segments) {
     Ball *ball = new(std::nothrow) Ball(filename, segments);
     if (ball) {
         ball->autorelease();
@@ -44,37 +44,28 @@ void Ball::SetVelocity(Vec2 v) {
     _velocity = v;
 }
 
-void Ball::MoveBall(float dt)
-{
+void Ball::MoveBall(float dt) {
     float s, t;
 
     auto currentPos = getPosition();
     Vec2 pos;
 
     Vec2 newPos = EstimateMove(dt);
-    for (auto& seg : *_segments)
-    {
-        if (seg.first.x == seg.second.x)
-        {
-            if (_velocity.x > 0)
-            {
+
+    for (auto &seg : *_segments) {
+        if (seg.first.x == seg.second.x) {
+            if (_velocity.x > 0) {
                 pos.x = currentPos.x + getContentSize().width / 2;
                 pos.y = currentPos.y;
-            }
-            else
-            {
+            } else {
                 pos.x = currentPos.x - getContentSize().width / 2;
                 pos.y = currentPos.y;
             }
-        } else
-        {
-            if (_velocity.y > 0)
-            {
+        } else {
+            if (_velocity.y > 0) {
                 pos.x = currentPos.x;
                 pos.y = currentPos.y + getContentSize().height / 2;
-            }
-            else
-            {
+            } else {
                 pos.x = currentPos.x;
                 pos.y = currentPos.y - getContentSize().height / 2;
             }
@@ -82,15 +73,19 @@ void Ball::MoveBall(float dt)
 
         //currentPos
         if (Vec2::isLineIntersect(pos, newPos, seg.first, seg.second, &s, &t) &&
-                (s >=0 && s <= 1 && t >= 0 && t <= 1))
-        {
+            (s >= 0 && s <= 1 && t >= 0 && t <= 1)) {
             //auto degree = atan((newPos.y - currentPos.y) / (newPos.x - currentPos.x));
-            if (seg.first.x == seg.second.x)
+            if (abs(seg.first.x - seg.second.x) < 0.1)
                 _velocity.x *= -1.0f;
-            else if (seg.first.y == seg.second.y)
+            else if (abs(seg.first.y - seg.second.y) < 0.1)
                 _velocity.y *= -1.0f;
-
-            //CCLOG("INTERSECT!!!");
+            else
+            CCLOG("INTERSECT!!!");
+//            auto marker = Sprite::create("marker.png");
+//            marker->setScale(10.0f);
+//            marker->setPosition(Vec2(seg.first.x + t * (seg.second.x - seg.first.x),
+//                                     seg.first.y + t * (seg.second.y - seg.first.y)));
+//            this->getParent()->addChild(marker);
             break;
         }
     }
