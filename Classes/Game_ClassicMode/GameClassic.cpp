@@ -205,7 +205,9 @@ void GameClassic::SetCropper() {
         case CropperImage::ANGLE: {
             _cropper->setTexture("cropper.png");
             int randDirection = GetRand1N(4);
-            if (randDirection == 2) {
+            if (randDirection == 1)
+                _cropper->setRotation(0.0f);
+            else if (randDirection == 2) {
                 _cropper->setRotation(90.0f);
             } else if (randDirection == 3) {
                 _cropper->setRotation(180.0f);
