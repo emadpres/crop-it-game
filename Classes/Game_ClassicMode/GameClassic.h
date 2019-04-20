@@ -21,7 +21,8 @@ public:
 private:
     Ball *_ball;
     Polygon *_polygon;
-    cocos2d::DrawNode *_drawingNode;
+    cocos2d::DrawNode *_drawing_bg;
+    cocos2d::DrawNode *_drawing_poly;
 
 
     void RenderPolygon();

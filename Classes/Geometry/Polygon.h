@@ -3,10 +3,12 @@
 
 #include <list>
 #include "cocos2d.h"
+#include "TransformInfo.h"
 
 using seg_t = std::pair<cocos2d::Vec2, cocos2d::Vec2>;
 using segList_t = std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>>;
 using segListIterator_t = segList_t::iterator;
+
 
 class Polygon {
 
@@ -21,7 +23,7 @@ public:
 
     void AddSegment(seg_t seg);
 
-    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 &ballPos);
+    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos);
 
     bool IsPointInsidePolygon(cocos2d::Vec2 point) const;
 
@@ -29,7 +31,7 @@ public:
 
     Polygon &operator=(const Polygon &second);
 
-    cocos2d::Vec2 Scale(cocos2d::Vec2 ballPos);
+    TransformInfo* EstimateScaleUp();
 
 private:
     cocos2d::Vec2 _origin;

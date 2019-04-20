@@ -93,7 +93,7 @@ float Polygon::CalcCutPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) 
     return 0;
 }
 
-void Polygon::Crop(Vec2 pos, int dir, Vec2 &ballPos) {
+void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
     if (false == IsPointInsidePolygon(pos))
         return;
@@ -150,11 +150,6 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 &ballPos) {
         *this = *poly1;
     else
         *this = *poly2;
-
-    float newArea = this->CalcArea();
-    CCLOG("New Area: %f", newArea);
-    if(newArea < 0.5*_area.width*_area.height)
-        ballPos = Scale(ballPos);
 }
 
 void Polygon::SplitPolygon(Vec2 &pos, const segListIterator_t &it1, const segListIterator_t &it2, Vec2 &rayCollisionPoint1,
@@ -220,8 +215,15 @@ float Polygon::CalcArea() {
 }
 
 
-Vec2 Polygon::Scale(Vec2 ballPos)
+TransformInfo* Polygon::EstimateScaleUp()
 {
+
+    float newArea = this->CalcArea();
+    CCLOG("New Area: %f", newArea);
+    if(newArea > 0.5*_area.width*_area.height)
+        return nullptr;
+
+
     float x_min, x_max, y_min, y_max;
     FindBoundaryXY(x_min, x_max, y_min, y_max);
 
@@ -236,17 +238,17 @@ Vec2 Polygon::Scale(Vec2 ballPos)
     float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
     float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
 
-    for (auto &seg: _segments) {
-        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-        seg.first.y = (seg.first.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
+//    for (auto &seg: _segments) {
+//        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
+//        seg.first.y = (seg.first.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
+//
+//        seg.second.x = (seg.second.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
+//        seg.second.y = (seg.second.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
+//    }
 
-        seg.second.x = (seg.second.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-        seg.second.y = (seg.second.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
-    }
+    //Vec2 newBallPos = Vec2((ballPos.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint,(ballPos.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint);
 
-    Vec2 newBallPos = Vec2((ballPos.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint,(ballPos.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint);
-
-    return newBallPos;
+    return nullptr;
 }
 
 void Polygon::FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max)

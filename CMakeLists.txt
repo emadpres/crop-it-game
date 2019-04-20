@@ -49,7 +49,8 @@ set(GAME_HEADER
         Classes/UserData.h
         Classes/HelperFunctions.h
         Classes/Game_ClassicMode/Ball.h
-        Classes/Geometry/Polygon.h)
+        Classes/Geometry/Polygon.h
+        Classes/Geometry/TransformInfo.h)
 
 set(GAME_RES_FOLDER
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"

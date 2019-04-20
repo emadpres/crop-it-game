@@ -4,6 +4,7 @@
 #include "Ball.h"
 #include "HelperFunctions.h"
 #include "Geometry/Polygon.h"
+#include "Geometry/TransformInfo.h"
 
 
 USING_NS_CC;
@@ -24,8 +25,10 @@ bool GameClassic::init() {
             Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - label->getContentSize().height));
     this->addChild(label);
 
-    _drawingNode = DrawNode::create();
-    addChild(_drawingNode);
+    _drawing_bg = DrawNode::create();
+    _drawing_poly = DrawNode::create();
+    addChild(_drawing_bg);
+    addChild(_drawing_poly);
     InitialGameArea();
     InitialBall();
     SetCropper();
@@ -40,7 +43,7 @@ bool GameClassic::init() {
 void GameClassic::InitialGameArea() {
     ///////////////// Transparent Square Background (Game Area Shadow)
     const auto gameAreaRect = GetGameAreaRect();
-    _drawingNode->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin + gameAreaRect.size, Color4F(50, 50, 50, 0.4));
+    _drawing_bg->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin + gameAreaRect.size, Color4F(50, 50, 50, 0.4));
     /////////////////
     int w = GetGameAreaSquareWidth();
     _polygon = new Polygon(GetGameAreaCenter() - Vec2(w / 2, w / 2), Size(w,w));
@@ -60,11 +63,11 @@ int GameClassic::GetGameAreaSquareWidth() {
 }
 
 void GameClassic::RenderPolygon() {
-    _drawingNode->clear();
+    _drawing_poly->clear();
     for (const pair<Vec2, Vec2> &seg: _polygon->GetSegments()) {
-        _drawingNode->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
-        _drawingNode->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW);
-        _drawingNode->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED);
+        _drawing_poly->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
+        _drawing_poly->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW);
+        _drawing_poly->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED);
     }
 }
 
@@ -155,9 +158,9 @@ void GameClassic::InitCropper() {
             }
 
             CCLOG("Dir: %d", dir);
-            Vec2 currentBallPos = _ball->getPosition();
-            _polygon->Crop(locationGlobal, dir, currentBallPos);
-            _ball->setPosition(currentBallPos);
+            _polygon->Crop(locationGlobal, dir, _ball->getPosition());
+            auto ti = _polygon->EstimateScaleUp();
+
             RenderPolygon();
             SetCropper();
         } else {
