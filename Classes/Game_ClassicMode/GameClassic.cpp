@@ -4,7 +4,7 @@
 #include "Ball.h"
 #include "HelperFunctions.h"
 #include "Geometry/Polygon.h"
-
+#include "GameOptions.h"
 
 USING_NS_CC;
 using namespace std;
@@ -17,6 +17,7 @@ bool GameClassic::init() {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     _cropper = nullptr;
+    _arrows = nullptr;
 
 
     auto label = Label::createWithTTF("Game: Classic", "fonts/Marker Felt.ttf", 24);
@@ -96,7 +97,7 @@ void GameClassic::InitCropper() {
     EventListenerTouchOneByOne *cropperTouchListener = EventListenerTouchOneByOne::create();
     cropperTouchListener->setSwallowTouches(true);
 
-    cropperTouchListener->onTouchBegan = [=](Touch *touch, Event *event) {
+    cropperTouchListener->onTouchBegan = [&](Touch *touch, Event *event) {
         auto target = static_cast<Node *>(event->getCurrentTarget());
         Point locationInNode = target->convertToNodeSpace(touch->getLocation());
         //CCLOG("Location in Node: %f\t%f", locationInNode.x, locationInNode.y);
@@ -114,9 +115,11 @@ void GameClassic::InitCropper() {
         return false;
     };
 
-    cropperTouchListener->onTouchMoved = [=](Touch *touch, Event *event) {
+    cropperTouchListener->onTouchMoved = [&](Touch *touch, Event *event) {
         auto target = static_cast<Node *>(event->getCurrentTarget());
         target->setPosition(target->getPosition() + touch->getDelta());
+        _tapLabel->setVisible(false);
+        _arrows->setVisible(false);
     };
 
     cropperTouchListener->onTouchEnded = cropperTouchListener->onTouchCancelled = [&](Touch *touch, Event *event) {
@@ -160,11 +163,21 @@ void GameClassic::InitCropper() {
             SetCropper();
         } else {
             target->runAction(MoveTo::create(0.2, GetCropperOriginalPos()));
+            if (_isRotatable)
+            {
+                _tapLabel->setVisible(true);
+                _arrows->setVisible(true);
+            }
         }
 
-        if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
-            _cropper->setRotation(_cropper->getRotation() + 90.0f);
+        if (_isRotatable) {
+            if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
+                _cropper->setRotation(_cropper->getRotation() + 90.0f);
+        }
     };
+
+    _arrows->setPosition(GetCropperOriginalPos());
+    addChild(_arrows);
 
     _cropper->setPosition(GetCropperOriginalPos());
     _eventDispatcher->addEventListenerWithSceneGraphPriority(cropperTouchListener, _cropper);
@@ -190,10 +203,44 @@ CropperImage GameClassic::GetInitialDirection() const
 }
 
 void GameClassic::SetCropper() {
-    //, (GetRand01() > .9) ? true : false
+    _isRotatable = (GetRand01() > .5) ? true : false;
+
     if (_cropper == nullptr) {
         _cropper = Sprite::create();
     }
+
+    if (_arrows == nullptr)
+    {
+        _arrows = Node::create();
+
+        for (int i = 0; i < 2; ++i)
+        {
+            auto arrowSprite = Sprite::create("arrow.png");
+            _arrows->addChild(arrowSprite);
+            arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, 40));
+            arrowSprite->setRotation(90 * i + 45);
+        }
+
+        for (int i = 0; i < 2; ++i)
+        {
+            auto arrowSprite = Sprite::create("arrow.png");
+            _arrows->addChild(arrowSprite);
+            arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, -40));
+            arrowSprite->setRotation(-90 * i - 45);
+        }
+
+        _arrows->runAction(RepeatForever::create(RotateBy::create(1.0f, 20.0f)));
+
+        _tapLabel = Label::createWithSystemFont("Tap to rotate",
+                GameOptions::getInstance()->getMainFont(),
+                28);
+        addChild(_tapLabel);
+        _tapLabel->setPosition(GetCropperOriginalPos() + Vec2(0.0f, 100.0f));
+    }
+
+    _arrows->setVisible(_isRotatable);
+    _tapLabel->setVisible(_isRotatable);
+
 
     auto imageDireciton = GetInitialDirection();
 

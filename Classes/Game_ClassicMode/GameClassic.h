@@ -48,6 +48,9 @@ private:
     void SetCropper();
 
     cocos2d::Sprite *_cropper;
+    cocos2d::Node *_arrows;
+    bool _isRotatable;
+    cocos2d::Label *_tapLabel;
 };
 
 
