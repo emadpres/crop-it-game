@@ -250,15 +250,15 @@ float Polygon::CalcArea() {
 
 void Polygon::ScaleUp(TransformInfo *ti)
 {
-    float x_offset_center_align = (_area.width - ti->w*ti->scale) / 2;
-    float y_offset_center_align = (_area.height - ti->h*ti->scale) / 2;
+    float x_offset_center_align = (_area.width - ti->_w*ti->_scale) / 2;
+    float y_offset_center_align = (_area.height - ti->_h*ti->_scale) / 2;
 
     for (auto &seg: _segments) {
-        seg.first.x = x_offset_center_align+ti->origin.x+(seg.first.x-ti->x_min)*ti->scale;
-        seg.first.y = y_offset_center_align+ti->origin.y+(seg.first.y-ti->y_min)*ti->scale;
+        seg.first.x = x_offset_center_align+ti->_origin.x+(seg.first.x-ti->_x_min)*ti->_scale;
+        seg.first.y = y_offset_center_align+ti->_origin.y+(seg.first.y-ti->_y_min)*ti->_scale;
 
-        seg.second.x = x_offset_center_align+ti->origin.x+(seg.second.x-ti->x_min)*ti->scale;
-        seg.second.y = y_offset_center_align+ti->origin.y+(seg.second.y-ti->y_min)*ti->scale;
+        seg.second.x = x_offset_center_align+ti->_origin.x+(seg.second.x-ti->_x_min)*ti->_scale;
+        seg.second.y = y_offset_center_align+ti->_origin.y+(seg.second.y-ti->_y_min)*ti->_scale;
     }
 
 }
@@ -287,14 +287,13 @@ TransformInfo* Polygon::EstimateScaleUp()
     float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
     float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
 
-
-    auto t = new TransformInfo;
-    t->origin = _origin;
-    t->x_min = x_min;
-    t->y_min = y_min;
-    t->w = x_max-x_min;
-    t->h = y_max-y_min;
-    t->scale = scaleFactor;
+    auto t = new TransformInfo(_origin, x_min, y_min, x_max-x_min, y_max-y_min, scaleFactor,_area);
+//    t->origin = _origin;
+//    t->x_min = x_min;
+//    t->y_min = y_min;
+//    t->w = x_max-x_min;
+//    t->h = y_max-y_min;
+//    t->scale = scaleFactor;
 
     return t;
 

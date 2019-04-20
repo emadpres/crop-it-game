@@ -167,18 +167,18 @@ void GameClassic::InitCropper() {
                 _targetPolyAfterAnimation = new Polygon(*_polygon);
                 _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
 
-                float x_offset_center_align = (GetGameAreaRect().size.width - _polyTransformInfo->w*_polyTransformInfo->scale) / 2;
-                float y_offset_center_align = (GetGameAreaRect().size.height - _polyTransformInfo->h*_polyTransformInfo->scale) / 2;
+                float x_offset_center_align = (GetGameAreaRect().size.width - _polyTransformInfo->_w*_polyTransformInfo->_scale) / 2;
+                float y_offset_center_align = (GetGameAreaRect().size.height - _polyTransformInfo->_h*_polyTransformInfo->_scale) / 2;
 
-                _targetBallPos.x = x_offset_center_align+_polyTransformInfo->origin.x+(_ball->getPosition().x-_polyTransformInfo->x_min)*_polyTransformInfo->scale;
-                _targetBallPos.y = y_offset_center_align+_polyTransformInfo->origin.y+(_ball->getPosition().y-_polyTransformInfo->y_min)*_polyTransformInfo->scale;
+                _targetBallPos.x = x_offset_center_align+_polyTransformInfo->_origin.x+(_ball->getPosition().x-_polyTransformInfo->_x_min)*_polyTransformInfo->_scale;
+                _targetBallPos.y = y_offset_center_align+_polyTransformInfo->_origin.y+(_ball->getPosition().y-_polyTransformInfo->_y_min)*_polyTransformInfo->_scale;
 
                 schedule([&](float dt) {
-                    CCLOG("t=%f", _polyTransformInfo->animationProgress01);
-                    const float ANIMATION_DUR = 1.0;
-                    _polyTransformInfo->animationProgress01 += dt / ANIMATION_DUR;
-                    if (_polyTransformInfo->animationProgress01 >= 1) {
-                        _polyTransformInfo->animationProgress01 = 1;
+                    CCLOG("t=%f", _polyTransformInfo->_animationProgress01);
+                    const float ANIMATION_DUR = 2.0;
+                    _polyTransformInfo->_animationProgress01 += dt / ANIMATION_DUR;
+                    if (_polyTransformInfo->_animationProgress01 >= 0.25) {
+                        _polyTransformInfo->_animationProgress01 = 1;
                         unschedule("scale_up");
                         IntialBallMovement();
                     }
@@ -187,13 +187,13 @@ void GameClassic::InitCropper() {
                     auto it_live = _polygon->GetSegments().begin();
 
                     while (it_target != _targetPolyAfterAnimation->GetSegments().end()) {
-                        it_live->first = it_live->first + _polyTransformInfo->animationProgress01 * ( it_target->first-it_live->first);
-                        it_live->second = it_live->second + _polyTransformInfo->animationProgress01 * ( it_target->second-it_live->second);
+                        it_live->first = it_live->first + _polyTransformInfo->_animationProgress01 * ( it_target->first-it_live->first);
+                        it_live->second = it_live->second + _polyTransformInfo->_animationProgress01 * ( it_target->second-it_live->second);
                         it_target++;
                         it_live++;
                     }
 
-                    _ball->setPosition(_ball->getPosition()+ _polyTransformInfo->animationProgress01*(_targetBallPos-_ball->getPosition()));
+                    _ball->setPosition(_ball->getPosition()+ _polyTransformInfo->_animationProgress01*(_targetBallPos-_ball->getPosition()));
 
 
                     RenderPolygon();
