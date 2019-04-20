@@ -6,6 +6,12 @@
 class Ball;
 class Polygon;
 
+enum class CropperImage
+{
+    LINE,
+    ANGLE
+};
+
 class GameClassic : public cocos2d::LayerColor {
 public:
     virtual bool init();
@@ -36,6 +42,12 @@ private:
 
     void Crop(cocos2d::Vec2 pos, int dir);
     int Crop(cocos2d::Vec2 star, cocos2d::Vec2 end);
+
+    CropperImage GetInitialDirection() const;
+
+    void SetCropper();
+
+    cocos2d::Sprite *_cropper;
 };
 
 

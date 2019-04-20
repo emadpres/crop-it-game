@@ -14,5 +14,6 @@ std::string ToString(T t)
 }
 
 float GetRand01();
+int   GetRand1N(int n);
 
 #endif //__HELPER_FUNCTIONS_H__

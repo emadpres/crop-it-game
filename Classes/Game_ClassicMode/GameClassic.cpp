@@ -16,6 +16,7 @@ bool GameClassic::init() {
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    _cropper = nullptr;
 
 
     auto label = Label::createWithTTF("Game: Classic", "fonts/Marker Felt.ttf", 24);
@@ -27,6 +28,7 @@ bool GameClassic::init() {
     addChild(_drawingNode);
     InitialGameArea();
     InitialBall();
+    SetCropper();
     InitCropper();
     RenderPolygon();
 
@@ -91,6 +93,7 @@ Vec2 GameClassic::GetCropperOriginalPos() {
 void GameClassic::InitCropper() {
     EventListenerTouchOneByOne *cropperTouchListener = EventListenerTouchOneByOne::create();
     cropperTouchListener->setSwallowTouches(true);
+
     cropperTouchListener->onTouchBegan = [=](Touch *touch, Event *event) {
         auto target = static_cast<Node *>(event->getCurrentTarget());
         Point locationInNode = target->convertToNodeSpace(touch->getLocation());
@@ -115,7 +118,8 @@ void GameClassic::InitCropper() {
     };
 
     cropperTouchListener->onTouchEnded = cropperTouchListener->onTouchCancelled = [&](Touch *touch, Event *event) {
-        auto target = static_cast<Node *>(event->getCurrentTarget());
+
+        auto target = static_cast<Sprite *>(event->getCurrentTarget());
         Vec2 locationGlobal = touch->getLocation(); // remember: this position is based on (0,0), not Origin
         bool inGameArea = GetGameAreaRect().containsPoint(locationGlobal);
         target->stopAllActions();
@@ -123,18 +127,43 @@ void GameClassic::InitCropper() {
         target->setOpacity(255);
         if (inGameArea) {
             target->setPosition(GetCropperOriginalPos());
-            _polygon->Crop(locationGlobal, 1);
+            // target set new direction
+
+            int dir = 0;
+            auto directionName = _cropper->getName();
+            auto rotation = (int)(_cropper->getRotation());
+            if (directionName == "line")
+            {
+                if (rotation % 180 == 0)
+                    dir = 5;
+                else
+                    dir = 6;
+            } else
+            {
+                if (rotation % 360 == 0)
+                    dir = 4;
+                else if (rotation % 270 == 0)
+                    dir = 3;
+                else if (rotation % 180 == 0)
+                    dir = 2;
+                else if (rotation % 90 == 0)
+                    dir = 1;
+            }
+
+            _polygon->Crop(locationGlobal, dir);
             RenderPolygon();
+            SetCropper();
         } else {
             target->runAction(MoveTo::create(0.2, GetCropperOriginalPos()));
         }
+
+        if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
+            _cropper->setRotation(_cropper->getRotation() + 90.0f);
     };
 
-
-    auto cropper = Sprite::create("cropper.png");
-    cropper->setPosition(GetCropperOriginalPos());
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(cropperTouchListener, cropper);
-    addChild(cropper);
+    _cropper->setPosition(GetCropperOriginalPos());
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(cropperTouchListener, _cropper);
+    addChild(_cropper);
 
 }
 
@@ -145,4 +174,45 @@ cocos2d::Rect GameClassic::GetGameAreaRect() {
     ///////////////// Transparent Square Background (Game Area Shadow)
 
     return Rect(center + Vec2(-SEG_LEN / 2, -SEG_LEN / 2), Size(+SEG_LEN, SEG_LEN));
+}
+
+CropperImage GameClassic::GetInitialDirection() const
+{
+    if (GetRand1N(2) == 1)
+        return CropperImage::LINE;
+
+    return CropperImage::ANGLE;
+}
+
+void GameClassic::SetCropper() {
+    //, (GetRand01() > .9) ? true : false
+    if (_cropper == nullptr) {
+        _cropper = Sprite::create();
+    }
+
+    auto imageDireciton = GetInitialDirection();
+
+    switch (imageDireciton) {
+        case CropperImage::LINE: {
+            _cropper->setTexture("cropper_2.png");
+            if (GetRand1N(2) == 1) {
+                _cropper->setRotation(90.0f);
+            }
+            _cropper->setName("line");
+            break;
+        }
+        case CropperImage::ANGLE: {
+            _cropper->setTexture("cropper.png");
+            int randDirection = GetRand1N(4);
+            if (randDirection == 2) {
+                _cropper->setRotation(90.0f);
+            } else if (randDirection == 3) {
+                _cropper->setRotation(180.0f);
+            } else if (randDirection == 4) {
+                _cropper->setRotation(270.0f);
+            }
+            _cropper->setName("angle");
+            break;
+        }
+    }
 }
