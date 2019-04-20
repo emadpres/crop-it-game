@@ -35,9 +35,6 @@ bool GameClassic::init() {
     SetCropper();
     InitCropper();
     RenderPolygon();
-
-    CCLOG("%d", (int)(_cropper->getRotation()));
-
     return true;
 }
 
@@ -137,9 +134,6 @@ void GameClassic::InitCropper() {
             int dir = 0;
             auto directionName = _cropper->getName();
             auto rotationNo = (int)(_cropper->getRotation() / 90.0f);
-
-            CCLOG("%d", (int)(_cropper->getRotation()));
-
             if (directionName == "line")
             {
                 if (rotationNo % 2 == 0)
@@ -157,8 +151,6 @@ void GameClassic::InitCropper() {
                 else if (rotationNo % 4 == 3)
                     dir = 4;
             }
-
-            CCLOG("Dir: %d", dir);
             _polygon->Crop(locationGlobal, dir, _ball->getPosition());
             _polyTransformInfo = _polygon->EstimateScaleUp();
 
@@ -167,14 +159,12 @@ void GameClassic::InitCropper() {
                 _targetPolyAfterAnimation = new Polygon(*_polygon);
                 _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
 
-                float x_offset_center_align = (GetGameAreaRect().size.width - _polyTransformInfo->_w*_polyTransformInfo->_scale) / 2;
-                float y_offset_center_align = (GetGameAreaRect().size.height - _polyTransformInfo->_h*_polyTransformInfo->_scale) / 2;
-
-                _targetBallPos.x = x_offset_center_align+_polyTransformInfo->_origin.x+(_ball->getPosition().x-_polyTransformInfo->_x_min)*_polyTransformInfo->_scale;
-                _targetBallPos.y = y_offset_center_align+_polyTransformInfo->_origin.y+(_ball->getPosition().y-_polyTransformInfo->_y_min)*_polyTransformInfo->_scale;
+                _targetBallPos = _ball->getPosition();
+                _polyTransformInfo->TranformVec2(_targetBallPos);
 
                 schedule([&](float dt) {
-                    CCLOG("t=%f", _polyTransformInfo->_animationProgress01);
+                    //
+                    // G("t=%f", _polyTransformInfo->_animationProgress01);
                     const float ANIMATION_DUR = 2.0;
                     _polyTransformInfo->_animationProgress01 += dt / ANIMATION_DUR;
                     if (_polyTransformInfo->_animationProgress01 >= 0.25) {
