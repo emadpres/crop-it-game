@@ -95,12 +95,11 @@ float Polygon::CalcCutPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) 
 
 void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
-    if(false==IsPointInsidePolygon(pos))
+    if (false == IsPointInsidePolygon(pos))
         return;
 
     Vec2 dir1, dir2;
-    switch(dir)
-    {
+    switch (dir) {
         case 1: // Right,Down
             dir1 = Vec2(1, 0);
             dir2 = Vec2(0, -1);
@@ -204,4 +203,13 @@ Polygon &Polygon::operator=(const Polygon &second) {
         AddSegment(seg);
 
     return (*this);
+}
+
+float Polygon::CalcArea() {
+
+    float area = 0;
+    for (const auto &seg: _segments)
+        area += (seg.first.x + seg.second.x) * (seg.first.y - seg.second.y);
+    area /= 2.0;
+    return area;
 }

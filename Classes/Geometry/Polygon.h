@@ -25,6 +25,8 @@ public:
 
     bool IsPointInsidePolygon(cocos2d::Vec2 point) const;
 
+    float CalcArea();
+
     Polygon &operator=(const Polygon &second);
 
 private:
