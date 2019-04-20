@@ -140,17 +140,18 @@ void GameClassic::InitCropper() {
                     dir = 6;
             } else
             {
-                if (rotation % 360 == 0)
+                if (rotation % 270 == 0)
                     dir = 4;
-                else if (rotation % 270 == 0)
-                    dir = 3;
                 else if (rotation % 180 == 0)
-                    dir = 2;
+                    dir = 3;
                 else if (rotation % 90 == 0)
+                    dir = 2;
+                else
                     dir = 1;
             }
 
-            _polygon->Crop(locationGlobal, dir);
+            CCLOG("Dir: %d", dir);
+            _polygon->Crop(locationGlobal, dir, _ball->getPosition());
             RenderPolygon();
             SetCropper();
         } else {

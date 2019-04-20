@@ -117,6 +117,15 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
             dir1 = Vec2(0, 1);
             dir2 = Vec2(1, 0);
             break;
+        case 5:
+            dir1 = Vec2(0, 1);
+            dir2 = Vec2(0, -1);
+            break;
+        case 6:
+        default:
+            dir1 = Vec2(1, 0);
+            dir2 = Vec2(-1, 0);
+            break;
     }
 
 
