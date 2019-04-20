@@ -79,9 +79,7 @@ void GameClassic::InitialBall() {
     _ball->SetVelocity(Vec2(500, 110));
     addChild(_ball);
 
-    schedule([&](float dt) {
-        _ball->MoveBall(dt);
-    }, 1.0 / 60, "ball_tick");
+   IntialBallMovement();
 
 //    schedule([&](float dt)
 //             {
@@ -162,7 +160,45 @@ void GameClassic::InitCropper() {
 
             CCLOG("Dir: %d", dir);
             _polygon->Crop(locationGlobal, dir, _ball->getPosition());
-            auto ti = _polygon->EstimateScaleUp();
+            _polyTransformInfo = _polygon->EstimateScaleUp();
+
+            if(_polyTransformInfo!= nullptr) {
+                unschedule("ball_tick");
+                _targetPolyAfterAnimation = new Polygon(*_polygon);
+                _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
+
+                float x_offset_center_align = (GetGameAreaRect().size.width - _polyTransformInfo->w*_polyTransformInfo->scale) / 2;
+                float y_offset_center_align = (GetGameAreaRect().size.height - _polyTransformInfo->h*_polyTransformInfo->scale) / 2;
+
+                _targetBallPos.x = x_offset_center_align+_polyTransformInfo->origin.x+(_ball->getPosition().x-_polyTransformInfo->x_min)*_polyTransformInfo->scale;
+                _targetBallPos.y = y_offset_center_align+_polyTransformInfo->origin.y+(_ball->getPosition().y-_polyTransformInfo->y_min)*_polyTransformInfo->scale;
+
+                schedule([&](float dt) {
+                    CCLOG("t=%f", _polyTransformInfo->animationProgress01);
+                    const float ANIMATION_DUR = 1.0;
+                    _polyTransformInfo->animationProgress01 += dt / ANIMATION_DUR;
+                    if (_polyTransformInfo->animationProgress01 >= 1) {
+                        _polyTransformInfo->animationProgress01 = 1;
+                        unschedule("scale_up");
+                        IntialBallMovement();
+                    }
+
+                    auto it_target = _targetPolyAfterAnimation->GetSegments().begin();
+                    auto it_live = _polygon->GetSegments().begin();
+
+                    while (it_target != _targetPolyAfterAnimation->GetSegments().end()) {
+                        it_live->first = it_live->first + _polyTransformInfo->animationProgress01 * ( it_target->first-it_live->first);
+                        it_live->second = it_live->second + _polyTransformInfo->animationProgress01 * ( it_target->second-it_live->second);
+                        it_target++;
+                        it_live++;
+                    }
+
+                    _ball->setPosition(_ball->getPosition()+ _polyTransformInfo->animationProgress01*(_targetBallPos-_ball->getPosition()));
+
+
+                    RenderPolygon();
+                }, 1/60.0, "scale_up");
+            }
 
             RenderPolygon();
             SetCropper();
@@ -275,4 +311,10 @@ void GameClassic::SetCropper() {
             break;
         }
     }
+}
+
+void GameClassic::IntialBallMovement() {
+    schedule([&](float dt) {
+        _ball->MoveBall(dt);
+    }, 1.0 / 60, "ball_tick");
 }

@@ -7,11 +7,35 @@ using namespace std;
 Polygon::Polygon(Vec2 origin, Size area):_origin(origin), _area(area)  {
 }
 
+Polygon::Polygon(const Polygon &p){
+    this->_origin = p._origin;
+    this->_area = p._area;
+
+    for (const auto &seg: p._segments)
+        AddSegment(seg);
+}
+
+Polygon &Polygon::operator=(const Polygon &second) {
+
+    this->_origin = second._origin;
+    this->_area = second._area;
+
+    _segments.clear();
+    for (const auto &seg: second._segments)
+        AddSegment(seg);
+
+    return (*this);
+}
+
 void Polygon::AddSegment(seg_t seg) {
     _segments.push_back(seg);
 }
 
 const segList_t &Polygon::GetSegments() const {
+    return _segments;
+}
+
+segList_t &Polygon::GetSegments() {
     return _segments;
 }
 
@@ -212,13 +236,7 @@ bool Polygon::IsPointInsidePolygon(Vec2 point) const {
 }
 
 
-Polygon &Polygon::operator=(const Polygon &second) {
-    _segments.clear();
-    for (const auto &seg: second._segments)
-        AddSegment(seg);
 
-    return (*this);
-}
 
 float Polygon::CalcArea() {
 
@@ -230,11 +248,26 @@ float Polygon::CalcArea() {
 }
 
 
+void Polygon::ScaleUp(TransformInfo *ti)
+{
+    float x_offset_center_align = (_area.width - ti->w*ti->scale) / 2;
+    float y_offset_center_align = (_area.height - ti->h*ti->scale) / 2;
+
+    for (auto &seg: _segments) {
+        seg.first.x = x_offset_center_align+ti->origin.x+(seg.first.x-ti->x_min)*ti->scale;
+        seg.first.y = y_offset_center_align+ti->origin.y+(seg.first.y-ti->y_min)*ti->scale;
+
+        seg.second.x = x_offset_center_align+ti->origin.x+(seg.second.x-ti->x_min)*ti->scale;
+        seg.second.y = y_offset_center_align+ti->origin.y+(seg.second.y-ti->y_min)*ti->scale;
+    }
+
+}
+
 TransformInfo* Polygon::EstimateScaleUp()
 {
     float newArea = this->CalcArea();
     CCLOG("New Area: %f", newArea);
-    if(newArea > 0.5*_area.width*_area.height)
+    if(newArea > 0.9*_area.width*_area.height)
         return nullptr;
 
 
@@ -247,6 +280,8 @@ TransformInfo* Polygon::EstimateScaleUp()
     float hScale = _area.height/polyheight;
 
     float scaleFactor = min(wScale, hScale);
+    if(scaleFactor<=1.1)
+        return nullptr;
     CCLOG("Scaling x%f", scaleFactor);
 
     float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
@@ -256,22 +291,14 @@ TransformInfo* Polygon::EstimateScaleUp()
     auto t = new TransformInfo;
     t->origin = _origin;
     t->x_min = x_min;
-    t->x_min = x_max;
+    t->y_min = y_min;
+    t->w = x_max-x_min;
+    t->h = y_max-y_min;
     t->scale = scaleFactor;
+
     return t;
 
-
-//    for (auto &seg: _segments) {
-//        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-//        seg.first.y = (seg.first.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
-//
-//        seg.second.x = (seg.second.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
-//        seg.second.y = (seg.second.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
-//    }
-
     //Vec2 newBallPos = Vec2((ballPos.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint,(ballPos.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint);
-
-    return nullptr;
 }
 
 void Polygon::FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max)

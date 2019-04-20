@@ -15,11 +15,16 @@ class Polygon {
 public:
     Polygon(cocos2d::Vec2 origin, cocos2d::Size area);
 
+    Polygon(const Polygon &p);
+
+    Polygon &operator=(const Polygon &second);
+
     void Initial_Square(cocos2d::Vec2 leftBottom, int width);
 
     void Initial_Custom1(cocos2d::Vec2 leftBottom, int width);
 
     const segList_t &GetSegments() const;
+    segList_t &GetSegments();
 
     void AddSegment(seg_t seg);
 
@@ -29,9 +34,8 @@ public:
 
     float CalcArea();
 
-    Polygon &operator=(const Polygon &second);
-
     TransformInfo* EstimateScaleUp();
+    void ScaleUp(TransformInfo *ti);
 
 private:
     cocos2d::Vec2 _origin;

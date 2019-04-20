@@ -11,9 +11,10 @@ class TransformInfo {
 
 public:
     cocos2d::Vec2 origin;
-    float x_min;
-    float y_min;
+    float x_min, y_min;
+    float w, h;
     float scale;
+    float animationProgress01 = 0;
 };
 
 
