@@ -42,8 +42,8 @@ void GameClassic::InitialGameArea() {
     const auto gameAreaRect = GetGameAreaRect();
     _drawingNode->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin + gameAreaRect.size, Color4F(50, 50, 50, 0.4));
     /////////////////
-    _polygon = new Polygon();
     int w = GetGameAreaSquareWidth();
+    _polygon = new Polygon(GetGameAreaCenter() - Vec2(w / 2, w / 2), Size(w,w));
     _polygon->Initial_Square(GetGameAreaCenter() - Vec2(w / 2, w / 2), w);
     //_polygon->Initial_Custom1(GetGameAreaCenter()-Vec2(w/2,w/2), w);
 }
@@ -155,7 +155,9 @@ void GameClassic::InitCropper() {
             }
 
             CCLOG("Dir: %d", dir);
-            _polygon->Crop(locationGlobal, dir, _ball->getPosition());
+            Vec2 currentBallPos = _ball->getPosition();
+            _polygon->Crop(locationGlobal, dir, currentBallPos);
+            _ball->setPosition(currentBallPos);
             RenderPolygon();
             SetCropper();
         } else {

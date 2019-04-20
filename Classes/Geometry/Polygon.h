@@ -11,7 +11,7 @@ using segListIterator_t = segList_t::iterator;
 class Polygon {
 
 public:
-    Polygon();
+    Polygon(cocos2d::Vec2 origin, cocos2d::Size area);
 
     void Initial_Square(cocos2d::Vec2 leftBottom, int width);
 
@@ -21,7 +21,7 @@ public:
 
     void AddSegment(seg_t seg);
 
-    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos);
+    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 &ballPos);
 
     bool IsPointInsidePolygon(cocos2d::Vec2 point) const;
 
@@ -29,7 +29,11 @@ public:
 
     Polygon &operator=(const Polygon &second);
 
+    cocos2d::Vec2 Scale(cocos2d::Vec2 ballPos);
+
 private:
+    cocos2d::Vec2 _origin;
+    cocos2d::Size _area;
     segList_t _segments;
 
     segListIterator_t Ray(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
@@ -37,6 +41,8 @@ private:
     int RayCount(cocos2d::Vec2 startPos, cocos2d::Vec2 dir) const;
 
     float CalcCutPoint(cocos2d::Vec2 a_start, cocos2d::Vec2 a_end, cocos2d::Vec2 b_start, cocos2d::Vec2 b_end) const;
+
+    void FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max);
 
     cocos2d::Vec2 BreakSegment(segListIterator_t it, float breakRatio);
 

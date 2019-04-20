@@ -4,7 +4,7 @@ USING_NS_CC;
 using namespace std;
 
 
-Polygon::Polygon() {
+Polygon::Polygon(Vec2 origin, Size area):_origin(origin), _area(area)  {
 }
 
 void Polygon::AddSegment(seg_t seg) {
@@ -93,7 +93,7 @@ float Polygon::CalcCutPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) 
     return 0;
 }
 
-void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
+void Polygon::Crop(Vec2 pos, int dir, Vec2 &ballPos) {
 
     if (false == IsPointInsidePolygon(pos))
         return;
@@ -145,17 +145,22 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
     SplitPolygon(pos, it1, it2, rayCollisionPoint1, rayCollisionPoint2, poly1, poly2);
 
+
     if (poly1->IsPointInsidePolygon(ballPos))
         *this = *poly1;
     else
         *this = *poly2;
+
+    float newArea = this->CalcArea();
+    CCLOG("New Area: %f", newArea);
+    if(newArea < 0.5*_area.width*_area.height)
+        ballPos = Scale(ballPos);
 }
 
-void
-Polygon::SplitPolygon(Vec2 &pos, const segListIterator_t &it1, const segListIterator_t &it2, Vec2 &rayCollisionPoint1,
+void Polygon::SplitPolygon(Vec2 &pos, const segListIterator_t &it1, const segListIterator_t &it2, Vec2 &rayCollisionPoint1,
                       Vec2 &rayCollisionPoint2, Polygon *&poly1, Polygon *&poly2) const {
-    poly1 = new Polygon();
-    poly2 = new Polygon();
+    poly1 = new Polygon(_origin, _area);
+    poly2 = new Polygon(_origin, _area);
     bool reachedFirstBreakingPoint = false;
     Polygon **activePoly = &poly1;
 
@@ -212,4 +217,67 @@ float Polygon::CalcArea() {
         area += (seg.first.x + seg.second.x) * (seg.first.y - seg.second.y);
     area /= 2.0;
     return area;
+}
+
+
+Vec2 Polygon::Scale(Vec2 ballPos)
+{
+    float x_min, x_max, y_min, y_max;
+    FindBoundaryXY(x_min, x_max, y_min, y_max);
+
+    float polyWidth = x_max - x_min;
+    float wScale = _area.width/polyWidth;
+    int polyheight = y_max - y_min;
+    float hScale = _area.height/polyheight;
+
+    float scaleFactor = min(wScale, hScale);
+    CCLOG("Scaling x%f", scaleFactor);
+
+    float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
+    float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
+
+    for (auto &seg: _segments) {
+        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
+        seg.first.y = (seg.first.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
+
+        seg.second.x = (seg.second.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;
+        seg.second.y = (seg.second.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint;
+    }
+
+    Vec2 newBallPos = Vec2((ballPos.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint,(ballPos.y-y_min)*scaleFactor+y_min - gapBtw_bottomBorder_and_BottomMostPoint);
+
+    return newBallPos;
+}
+
+void Polygon::FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max)
+{
+    x_min = numeric_limits<float>::max();
+    y_min = numeric_limits<float>::max();
+
+    x_max = -1*numeric_limits<float>::min();
+    y_max = -1*numeric_limits<float>::max();
+
+    for (const auto &seg: _segments) {
+        // seg.first
+        if (seg.first.x < x_min)
+            x_min = seg.first.x;
+        if (seg.first.x > x_max)
+            x_max = seg.first.x;
+
+        if (seg.first.y < y_min)
+            y_min = seg.first.y;
+        if (seg.first.y > y_max)
+            y_max = seg.first.y;
+
+        // seg.second
+        if (seg.second.x < x_min)
+            x_min = seg.second.x;
+        if (seg.second.x > x_max)
+            x_max = seg.second.x;
+
+        if (seg.second.y < y_min)
+            y_min = seg.second.y;
+        if (seg.second.y > y_max)
+            y_max = seg.second.y;
+    }
 }
