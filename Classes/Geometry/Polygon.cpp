@@ -50,6 +50,18 @@ int Polygon::RayCount(Vec2 startPos, Vec2 dir) const {
     return count;
 }
 
+Vec2 Polygon::RayPos(Vec2 startPos, Vec2 dir)
+{
+    segListIterator_t it = Ray(startPos, dir);
+    if (it!=_segments.end()) {
+        float r = FindIntersectionPoint(startPos, startPos + dir * 1000, it->first, it->second);
+        return Vec2(it->first.x+r*(it->second.x-it->first.x),
+                    it->first.y+r*(it->second.y-it->first.y));
+    } else
+        return Vec2::ZERO;
+}
+
+
 segListIterator_t Polygon::Ray(Vec2 startPos, Vec2 dir) {
     segListIterator_t nearestSeg_it = _segments.end();
     float nearestSeg_s = 1.1f;
@@ -83,7 +95,10 @@ Vec2 Polygon::BreakSegment(segListIterator_t it, float breakRatio) {
     return firstPartEnd;
 }
 
-float Polygon::CalcCutPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) const {
+/*
+ * Returns t, the ration on the second line: intersection.x = b_start.x+t*(b_end.x-b_start.x)
+ */
+float Polygon::FindIntersectionPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec2 b_end) const {
     float s, t;
     if (Vec2::isLineIntersect(a_start, a_end, b_start, b_end, &s, &t)) {
         if (s >= 0 && t >= 0 && s <= 1 && t <= 1) {
@@ -133,11 +148,11 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
 
     it1 = Ray(pos, dir1);
-    float r = CalcCutPoint(pos, pos + dir1 * 1000, it1->first, it1->second);
+    float r = FindIntersectionPoint(pos, pos + dir1 * 1000, it1->first, it1->second);
     rayCollisionPoint1 = BreakSegment(it1, r);
 
     it2 = Ray(pos, dir2);
-    r = CalcCutPoint(pos, pos + dir2 * 1000, it2->first, it2->second);
+    r = FindIntersectionPoint(pos, pos + dir2 * 1000, it2->first, it2->second);
     rayCollisionPoint2 = BreakSegment(it2, r);
 
     Polygon *poly1;
@@ -217,7 +232,6 @@ float Polygon::CalcArea() {
 
 TransformInfo* Polygon::EstimateScaleUp()
 {
-
     float newArea = this->CalcArea();
     CCLOG("New Area: %f", newArea);
     if(newArea > 0.5*_area.width*_area.height)
@@ -237,6 +251,15 @@ TransformInfo* Polygon::EstimateScaleUp()
 
     float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
     float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
+
+
+    auto t = new TransformInfo;
+    t->origin = _origin;
+    t->x_min = x_min;
+    t->x_min = x_max;
+    t->scale = scaleFactor;
+    return t;
+
 
 //    for (auto &seg: _segments) {
 //        seg.first.x = (seg.first.x-x_min)*scaleFactor+x_min - gapBtw_leftBorder_and_leftMostPoint;

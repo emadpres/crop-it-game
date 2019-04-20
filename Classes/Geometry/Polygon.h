@@ -40,9 +40,11 @@ private:
 
     segListIterator_t Ray(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
 
+    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
+
     int RayCount(cocos2d::Vec2 startPos, cocos2d::Vec2 dir) const;
 
-    float CalcCutPoint(cocos2d::Vec2 a_start, cocos2d::Vec2 a_end, cocos2d::Vec2 b_start, cocos2d::Vec2 b_end) const;
+    float FindIntersectionPoint(cocos2d::Vec2 a_start, cocos2d::Vec2 a_end, cocos2d::Vec2 b_start, cocos2d::Vec2 b_end) const;
 
     void FindBoundaryXY(float &x_min, float &x_max, float &y_min, float &y_max);
 
