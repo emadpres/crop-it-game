@@ -6,6 +6,7 @@
 #include "GameOptions.h"
 #include "Geometry/Polygon.h"
 #include "Geometry/TransformInfo.h"
+#include "UserData.h"
 
 USING_NS_CC;
 using namespace std;
@@ -20,11 +21,26 @@ bool GameClassic::init() {
     _cropper = nullptr;
     _arrows = nullptr;
 
+    UserData::getInstance()->SetCurrentLevel(1);
 
-    auto label = Label::createWithTTF("Game: Classic", "fonts/Marker Felt.ttf", 24);
-    label->setPosition(
-            Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - label->getContentSize().height));
-    this->addChild(label);
+    _levelLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->GetCurrentLevel()), GameOptions::getInstance()->getMainFont(), 30);
+    _levelLabel->setPosition(
+            Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height));
+    this->addChild(_levelLabel);
+
+
+    auto bar = Sprite::create("bar.png");
+    _progressBar = ProgressTimer::create(bar);
+    addChild(_progressBar);
+    _progressBar->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height - _progressBar->getContentSize().height));
+    _progressBar->setType(ProgressTimer::Type::BAR);
+    _progressBar->setMidpoint(Vec2(0.0f, 0.5f));
+    _progressBar->setPercentage(0);
+    _progressBar->setBarChangeRate(Vec2(1, 0));
+
+    auto container = Sprite::create("container.png");
+    container->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height - container->getContentSize().height));
+    addChild(container);
 
     _drawing_bg = DrawNode::create();
     _drawing_poly = DrawNode::create();
@@ -205,6 +221,8 @@ void GameClassic::InitCropper() {
             if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
                 _cropper->setRotation(_cropper->getRotation() + 90.0f);
         }
+
+        UpdateHud(100);
     };
 
     _arrows->setPosition(GetCropperOriginalPos());
@@ -308,3 +326,31 @@ void GameClassic::IntialBallMovement() {
         _ball->MoveBall(dt);
     }, 1.0 / 60, "ball_tick");
 }
+
+void GameClassic::UpdateHud(int percentage)
+{
+    // if percentage is 100 -> go to end then go back
+    // if percentage is less than 100 -> go to it
+
+    FiniteTimeAction *setPercentage = CallFunc::create([&, percentage](){
+        _progressBar->setPercentage(percentage);
+    });
+
+    auto progressToPercent = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), percentage);
+
+    if (percentage == 100)
+    {
+        UserData::getInstance()->SetCurrentLevel(UserData::getInstance()->GetCurrentLevel() + 1);
+        int bestScore = UserData::getInstance()->getHighScore();
+        if (UserData::getInstance()->GetCurrentLevel() > bestScore) {
+            UserData::getInstance()->setHighScore(UserData::getInstance()->GetCurrentLevel());
+        }
+        auto progressToStart = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), 0);
+        _progressBar->runAction(Sequence::create(progressToPercent, setPercentage, progressToStart, nullptr));
+        _levelLabel->setString(ToString(UserData::getInstance()->GetCurrentLevel()));
+    } else
+    {
+        _progressBar->runAction(progressToPercent);
+    }
+}
+

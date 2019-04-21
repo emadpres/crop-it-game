@@ -25,7 +25,6 @@ private:
     cocos2d::DrawNode *_drawing_bg;
     cocos2d::DrawNode *_drawing_poly;
 
-
     void RenderPolygon();
 
     void InitialGameArea();
@@ -59,6 +58,11 @@ private:
     cocos2d::Vec2 _targetBallPos;
 
     void IntialBallMovement();
+
+    void UpdateHud(int percentage);
+
+    cocos2d::Label *_levelLabel;
+    cocos2d::ProgressTimer *_progressBar;
 };
 
 
