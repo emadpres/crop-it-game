@@ -28,6 +28,7 @@
 #include "GameOptions.h"
 #include "UserData.h"
 #include "SimpleAudioEngine.h"
+#include "RestartScene.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -109,7 +110,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     auto scene = Scene::create();
-    scene->addChild(MainMenu::create());
+    scene->addChild(RestartScene::create());
     director->runWithScene(scene);
 
     return true;

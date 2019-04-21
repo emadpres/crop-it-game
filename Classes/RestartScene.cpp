@@ -7,23 +7,33 @@
 
 bool RestartScene::init()
 {
-    if (!LayerColor::initWithColor(cocos2d::Color4B::YELLOW))
+    if (!LayerColor::init())
         return false;
 
     auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+    auto origin = cocos2d::Director::getInstance()->getVisibleOrigin();
+
+    auto bg = cocos2d::Sprite::create("bg.png");
+    addChild(bg);
+    bg->setPosition(origin + visibleSize / 2);
+
+    auto container = cocos2d::Sprite::create("container.png");
+    addChild(container);
+    container->setPosition(origin + cocos2d::Vec2(visibleSize.width / 2, visibleSize.height - container->getContentSize().height));
 
     auto bar = cocos2d::Sprite::create("bar.png");
     auto progressBar = cocos2d::ProgressTimer::create(bar);
-    addChild(progressBar);
-    progressBar->setPosition(cocos2d::Vec2(visibleSize.width / 2, visibleSize.height - progressBar->getContentSize().height));
+    container->addChild(progressBar);
+    progressBar->setPosition(origin + container->getContentSize() / 2 + cocos2d::Size(-20.0f, 10.0f));
     progressBar->setType(cocos2d::ProgressTimer::Type::BAR);
     progressBar->setMidpoint(cocos2d::Vec2(0.0f, 0.5f));
     progressBar->setPercentage(0);
     progressBar->setBarChangeRate(cocos2d::Vec2(1, 0));
 
-    auto container = cocos2d::Sprite::create("container.png");
-    addChild(container);
-    container->setPosition(cocos2d::Vec2(visibleSize.width / 2, visibleSize.height - container->getContentSize().height));
+    auto star = cocos2d::Sprite::create("star.png");
+    container->addChild(star);
+    star->setPosition(origin + cocos2d::Vec2(0.0f, container->getContentSize().height / 2));
+    star->setScale(0.8f);
 
     int highScore = UserData::getInstance()->getHighScore();
     int r = highScore / 20;
@@ -36,10 +46,11 @@ bool RestartScene::init()
     {
         int number = firstSeed + (i - 1) * 5;
         auto scoreIndicator = cocos2d::Label::createWithSystemFont(ToString(number),
-                GameOptions::getInstance()->getMainFont(), 32);
+                GameOptions::getInstance()->getMainFont(), 38);
         container->addChild(scoreIndicator);
-        scoreIndicator->setPosition(container->getContentSize().width / 4 * i, -scoreIndicator->getContentSize().height);
-        scoreIndicator->setTextColor(cocos2d::Color4B::BLACK);
+        scoreIndicator->setPosition(container->getContentSize().width / 4 * i + 20.0f, -scoreIndicator->getContentSize().height);
+        scoreIndicator->enableBold();
+        scoreIndicator->enableShadow();
     }
 
     if (highScore != 0) {
@@ -57,26 +68,28 @@ bool RestartScene::init()
 
     auto playButton = cocos2d::ui::Button::create("PlayButton.png");
     addChild(playButton);
-    playButton->setPosition(visibleSize / 2 + cocos2d::Size(0.0f, 30.0f));
+    playButton->setPosition(origin + visibleSize / 2 + cocos2d::Size(0.0f, 30.0f));
     playButton->addClickEventListener([&](Ref* sender){
         auto classic = GameClassic::create();
         auto scene = cocos2d::Scene::create();
         scene->addChild(classic);
         cocos2d::Director::getInstance()->replaceScene(scene);
     });
-    playButton->setScale(4.0f);
+    playButton->setZoomScale(-0.1f);
 
-    auto bestScoreText = cocos2d::Label::createWithSystemFont(ToString(highScore),
-            GameOptions::getInstance()->getMainFont(), 40);
-    container->addChild(bestScoreText);
-    bestScoreText->setPosition(container->getContentSize() / 2 + cocos2d::Size(0.0f, -150.0f));
-    bestScoreText->setTextColor(cocos2d::Color4B::BLACK);
 
     auto bestScoreLabel = cocos2d::Label::createWithSystemFont("Best Score",
-            GameOptions::getInstance()->getMainFont(), 24);
-    container->addChild(bestScoreLabel);
-    bestScoreLabel->setPosition(container->getContentSize() / 2 + cocos2d::Size(0.0f, -100.0f));
-    bestScoreLabel->setTextColor(cocos2d::Color4B::BLACK);
+                                                      GameOptions::getInstance()->getMainFont(), 40);
+    bestScoreLabel->setPosition(origin + visibleSize / 2 + cocos2d::Size(0.0f, visibleSize.height / 4));
+    addChild(bestScoreLabel);
+    bestScoreLabel->enableOutline(cocos2d::Color4B::BLACK);
+
+    auto scoreLabel = cocos2d::Label::createWithSystemFont(ToString(UserData::getInstance()->getHighScore()),
+                                                  GameOptions::getInstance()->getMainFont(), 65);
+    scoreLabel->setPosition(origin + visibleSize / 2 + cocos2d::Size(0.0f, visibleSize.height / 5));
+    addChild(scoreLabel);
+    scoreLabel->enableOutline(cocos2d::Color4B::BLACK);
+    scoreLabel->enableShadow();
 
     return true;
 }

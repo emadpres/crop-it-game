@@ -21,33 +21,41 @@ bool GameClassic::init() {
     _cropper = nullptr;
     _arrows = nullptr;
 
+    auto bg = Sprite::create("bg.png");
+    addChild(bg);
+    bg->setPosition(origin + visibleSize / 2);
+
+    auto container = Sprite::create("container.png");
+    container->setPosition(origin + Size(visibleSize.width / 2, visibleSize.height - container->getContentSize().height / 2 - 20.0f));
+    addChild(container);
+
     UserData::getInstance()->SetCurrentLevel(1);
 
     _levelLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->GetCurrentLevel()),
-                                              GameOptions::getInstance()->getMainFont(), 30);
-    _levelLabel->setPosition(
-            Vec2(origin.x + visibleSize.width / 2,
-                 origin.y + visibleSize.height - _levelLabel->getContentSize().height));
-    this->addChild(_levelLabel);
-
+                                              GameOptions::getInstance()->getMainFont(), 50);
+    _levelLabel->setPosition(origin + Vec2(0.0f, container->getContentSize().height / 2));
+    container->addChild(_levelLabel);
+    _levelLabel->setTextColor(Color4B::BLACK);
+    _levelLabel->enableBold();
 
     auto bar = Sprite::create("bar.png");
     _progressBar = ProgressTimer::create(bar);
-    addChild(_progressBar);
-    _progressBar->setPosition(Vec2(origin.x + visibleSize.width / 2,
-                                   origin.y + visibleSize.height - _levelLabel->getContentSize().height -
-                                   _progressBar->getContentSize().height));
+    container->addChild(_progressBar);
+    _progressBar->setPosition(origin + container->getContentSize() / 2 + Size(-20.0f, 10.0f));
     _progressBar->setType(ProgressTimer::Type::BAR);
     _progressBar->setMidpoint(Vec2(0.0f, 0.5f));
-    _progressBar->setPercentage(0);
+    _progressBar->setPercentage(0.0f);
     _progressBar->setBarChangeRate(Vec2(1, 0));
 
-    auto container = Sprite::create("container.png");
-    container->setPosition(Vec2(origin.x + visibleSize.width / 2,
-                                origin.y + visibleSize.height - _levelLabel->getContentSize().height -
-                                container->getContentSize().height));
-
-    addChild(container);
+    auto refreshButton = ui::Button::create("refresh.png");
+    addChild(refreshButton);
+    refreshButton->setPosition(origin + Size(visibleSize.width - refreshButton->getContentSize().width / 2 - 20.0f,
+            visibleSize.height / 2 - 1.2f * refreshButton->getContentSize().height));
+    refreshButton->setScale(0.5f);
+    refreshButton->setZoomScale(-0.1f);
+    refreshButton->addClickEventListener([&](Ref* sender){
+       SetCropper();
+    });
 
 
     _drawing_bg = DrawNode::create();
@@ -113,7 +121,7 @@ void GameClassic::InitialBall() {
 Vec2 GameClassic::GetCropperOriginalPos() {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-    return origin + Vec2(visibleSize.width / 2, 100);
+    return origin + Vec2(visibleSize.width / 2, 150);
 }
 
 void GameClassic::InitCropper() {
@@ -131,7 +139,7 @@ void GameClassic::InitCropper() {
             // 1.Take card A    2.Free card A => we for example may call sth by `afterCardMoveFinished_Action`
             // 3. and Now we again get card A ! ===> we should destroy all suspending action at first and clear card.
             target->stopAllActions();  // Reason in above scenario
-            target->setScale(1.7);
+            target->setScale(1.1f);
             target->setOpacity(100);
             return true;
         }
@@ -319,24 +327,26 @@ void GameClassic::SetCropper() {
         for (int i = 0; i < 2; ++i) {
             auto arrowSprite = Sprite::create("arrow.png");
             _arrows->addChild(arrowSprite);
-            arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, 40));
+            arrowSprite->setPosition(_arrows->getPosition() + Vec2(140 * i - 70, 80));
             arrowSprite->setRotation(90 * i + 45);
         }
 
         for (int i = 0; i < 2; ++i) {
             auto arrowSprite = Sprite::create("arrow.png");
             _arrows->addChild(arrowSprite);
-            arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, -40));
+            arrowSprite->setPosition(_arrows->getPosition() + Vec2(140 * i - 70, -80));
             arrowSprite->setRotation(-90 * i - 45);
         }
 
-        _arrows->runAction(RepeatForever::create(RotateBy::create(1.0f, 20.0f)));
+        _arrows->runAction(RepeatForever::create(RotateBy::create(1.0f, 90.0f)));
 
         _tapLabel = Label::createWithSystemFont("Tap to rotate",
                                                 GameOptions::getInstance()->getMainFont(),
-                                                28);
+                                                40);
         addChild(_tapLabel);
-        _tapLabel->setPosition(GetCropperOriginalPos() + Vec2(0.0f, 100.0f));
+        _tapLabel->setPosition(GetCropperOriginalPos() + Vec2(0.0f, 150.0f));
+        _tapLabel->enableBold();
+        _tapLabel->enableShadow();
     }
 
     _arrows->setVisible(_isRotatable);
@@ -399,6 +409,10 @@ void GameClassic::UpdateHud(int percentage) {
         _progressBar->setPercentage(percentage);
     });
 
+    FiniteTimeAction *setLevelLabel = CallFunc::create([&]{
+        _levelLabel->setString(ToString(UserData::getInstance()->GetCurrentLevel()));
+    });
+
     auto progressToPercent = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), percentage);
 
     if (percentage == 100) {
@@ -407,9 +421,12 @@ void GameClassic::UpdateHud(int percentage) {
         if (UserData::getInstance()->GetCurrentLevel() > bestScore) {
             UserData::getInstance()->setHighScore(UserData::getInstance()->GetCurrentLevel());
         }
-        auto progressToStart = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), 0);
+        auto progressToStart = ProgressFromTo::create(.3f, _progressBar->getPercentage(), 0);
         _progressBar->runAction(Sequence::create(progressToPercent, setPercentage, progressToStart, nullptr));
-        _levelLabel->setString(ToString(UserData::getInstance()->GetCurrentLevel()));
+
+        auto scaleUpAction = ScaleTo::create(0.2f, 1.2f);
+        auto scaleDownAction = ScaleTo::create(0.2f, 1.0f);
+        _levelLabel->runAction(Sequence::create(scaleUpAction, setLevelLabel, scaleDownAction, nullptr));
     } else {
         _progressBar->runAction(progressToPercent);
     }
