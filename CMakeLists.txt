@@ -41,13 +41,19 @@ set(GAME_SOURCE
         Classes/GameOptions.cpp
         Classes/UserData.cpp
         Classes/HelperFunctions.cpp
-        Classes/Game_ClassicMode/Ball.cpp)
+        Classes/Game_ClassicMode/Ball.cpp
+        Classes/Geometry/Polygon.cpp
+        Classes/RestartScene.cpp)
 set(GAME_HEADER
         Classes/Credit.h
         Classes/GameOptions.h
         Classes/UserData.h
         Classes/HelperFunctions.h
-        Classes/Game_ClassicMode/Ball.h)
+        Classes/Game_ClassicMode/Ball.h
+        Classes/Geometry/Polygon.h
+        Classes/RestartScene.h
+        Classes/Geometry/TransformInfo.h
+        Classes/Geometry/GeometryTypes.h)
 
 set(GAME_RES_FOLDER
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"

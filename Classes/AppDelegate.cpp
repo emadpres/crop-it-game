@@ -24,6 +24,7 @@
 
 #include "AppDelegate.h"
 #include "MainMenu.h"
+#include "Game_ClassicMode/GameClassic.h"
 #include "GameOptions.h"
 #include "UserData.h"
 #include "SimpleAudioEngine.h"
@@ -107,9 +108,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
-    //auto scene = Scene::create();
-    //scene->addChild(MainMenu::create());
-    //director->runWithScene(scene);
 
     auto mainScene = MainMenu::createScene(true);
     if (mainScene != nullptr)
