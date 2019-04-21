@@ -12,7 +12,7 @@ USING_NS_CC;
 
 bool MainMenu::init()
 {
-    if ( !LayerColor::initWithColor(Color4B::MAGENTA))
+    if ( !LayerColor::init())
     {
         return false;
     }
@@ -20,19 +20,33 @@ bool MainMenu::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    auto gameNmaeLabel = Label::createWithSystemFont("CropIt!", GameOptions::getInstance()->getMainFont(), 36);
-    gameNmaeLabel->setPosition(Vec2(origin.x + visibleSize.width/2, origin.y + visibleSize.height - gameNmaeLabel->getContentSize().height));
-    addChild(gameNmaeLabel);
+    auto bg = Sprite::create("bg.png");
+    addChild(bg);
+    bg->setPosition(origin + visibleSize / 2);
+
+    auto nameBg = Sprite::create("nameBg.png");
+    addChild(nameBg);
+    nameBg->setPosition(origin + Vec2(visibleSize.width / 2, visibleSize.height - nameBg->getContentSize().height));
+
+    auto gameNameLabel = Label::createWithSystemFont("Crop It", GameOptions::getInstance()->getMainFont(), 70);
+    gameNameLabel->setPosition(nameBg->getContentSize() / 2 + Size(0.0f, gameNameLabel->getContentSize().height / 3));
+    nameBg->addChild(gameNameLabel);
+    gameNameLabel->enableBold();
+    gameNameLabel->enableShadow();
+    gameNameLabel->enableOutline(Color4B::BLACK);
 
     auto bestScoreLabel = Label::createWithSystemFont("Best Score",
-            GameOptions::getInstance()->getMainFont(), 30);
-    bestScoreLabel->setPosition(visibleSize / 2 + Size(0.0f, visibleSize.height / 3));
+            GameOptions::getInstance()->getMainFont(), 40);
+    bestScoreLabel->setPosition(origin + visibleSize / 2 + Size(0.0f, visibleSize.height / 4));
     addChild(bestScoreLabel);
+    bestScoreLabel->enableOutline(Color4B::BLACK);
 
     auto scoreLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->getHighScore()),
-            GameOptions::getInstance()->getMainFont(), 34);
-    scoreLabel->setPosition(visibleSize / 2 + Size(0.0f, visibleSize.height / 4));
+            GameOptions::getInstance()->getMainFont(), 65);
+    scoreLabel->setPosition(origin + visibleSize / 2 + Size(0.0f, visibleSize.height / 5));
     addChild(scoreLabel);
+    scoreLabel->enableOutline(Color4B::BLACK);
+    scoreLabel->enableShadow();
 
     auto playButton = ui::Button::create("PlayButton.png");
     playButton->setPosition(origin+visibleSize/2);
@@ -43,7 +57,7 @@ bool MainMenu::init()
         Director::getInstance()->replaceScene(scene);
     });
     addChild(playButton);
-    playButton->setScale(4.0f);
+    playButton->setZoomScale(-0.1f);
 
     auto soundButton = ui::Button::create("Sound.png");
     auto soundButtonContentSize = soundButton->getContentSize();
@@ -51,6 +65,7 @@ bool MainMenu::init()
             origin.y + 2.0f * soundButtonContentSize.height));
     addChild(soundButton);
     soundButton->setScale(4.0f);
+    soundButton->setVisible(false);
 
     if (!GameOptions::getInstance()->getSoundStatus())
         soundButton->setColor(Color3B::RED);
@@ -73,16 +88,22 @@ bool MainMenu::init()
 
     auto creditButton = ui::Button::create("Credit.png");
     auto creditButtonContentSize = creditButton->getContentSize();
-    creditButton->setPosition(Vec2(origin.x + creditButtonContentSize.width,
-            origin.y + creditButtonContentSize.height));
+    creditButton->setPosition(origin + Vec2(visibleSize.width / 2, creditButton->getContentSize().height));
     addChild(creditButton);
-    creditButton->setScale(2.0f);
     creditButton->addClickEventListener([&](Ref* sender){
         auto creditPage = Credit::create();
         auto scene = Scene::create();
         scene->addChild(creditPage);
         Director::getInstance()->replaceScene(scene);
     });
+    creditButton->setZoomScale(-0.1f);
+
+    auto creditLabel = Label::createWithSystemFont("credit",
+            GameOptions::getInstance()->getMainFont(),
+            45);
+    creditButton->addChild(creditLabel);
+    creditLabel->setPosition(creditButton->getContentSize() / 2 + Size(0.0f, 10.0f));
+    creditLabel->setTextColor(Color4B::BLACK);
 
     return true;
 }

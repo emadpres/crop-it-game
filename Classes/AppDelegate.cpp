@@ -86,7 +86,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         const Size deviceResolution169 = Size(405, 720);//Size(1080, 1920);
         const Size deviceResolution43 = Size(512, 682);//Size(1536, 2048);
         glview = GLViewImpl::createWithRect("Crop It",
-                                            cocos2d::Rect(0, 0, deviceResolution43.width, deviceResolution43.height));
+                                            cocos2d::Rect(0, 0, deviceResolution169.width, deviceResolution169.height));
         //glview->setFrameZoomFactor( 1/2.0);
 #else
         glview = GLViewImpl::create("Crop It");
@@ -109,7 +109,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     auto scene = Scene::create();
-    scene->addChild(GameClassic::create());
+    scene->addChild(MainMenu::create());
     director->runWithScene(scene);
 
     return true;
