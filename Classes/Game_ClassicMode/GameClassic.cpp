@@ -7,7 +7,7 @@
 #include "Geometry/Polygon.h"
 #include "Geometry/TransformInfo.h"
 #include "UserData.h"
-
+#include "RestartScene.h"
 USING_NS_CC;
 using namespace std;
 
@@ -23,24 +23,32 @@ bool GameClassic::init() {
 
     UserData::getInstance()->SetCurrentLevel(1);
 
-    _levelLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->GetCurrentLevel()), GameOptions::getInstance()->getMainFont(), 30);
+    _levelLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->GetCurrentLevel()),
+                                              GameOptions::getInstance()->getMainFont(), 30);
     _levelLabel->setPosition(
-            Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height));
+            Vec2(origin.x + visibleSize.width / 2,
+                 origin.y + visibleSize.height - _levelLabel->getContentSize().height));
     this->addChild(_levelLabel);
 
 
     auto bar = Sprite::create("bar.png");
     _progressBar = ProgressTimer::create(bar);
     addChild(_progressBar);
-    _progressBar->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height - _progressBar->getContentSize().height));
+    _progressBar->setPosition(Vec2(origin.x + visibleSize.width / 2,
+                                   origin.y + visibleSize.height - _levelLabel->getContentSize().height -
+                                   _progressBar->getContentSize().height));
     _progressBar->setType(ProgressTimer::Type::BAR);
     _progressBar->setMidpoint(Vec2(0.0f, 0.5f));
     _progressBar->setPercentage(0);
     _progressBar->setBarChangeRate(Vec2(1, 0));
 
     auto container = Sprite::create("container.png");
-    container->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _levelLabel->getContentSize().height - container->getContentSize().height));
+    container->setPosition(Vec2(origin.x + visibleSize.width / 2,
+                                origin.y + visibleSize.height - _levelLabel->getContentSize().height -
+                                container->getContentSize().height));
+
     addChild(container);
+
 
     _drawing_bg = DrawNode::create();
     _drawing_poly = DrawNode::create();
@@ -60,9 +68,11 @@ void GameClassic::InitialGameArea() {
     _drawing_bg->drawSolidRect(gameAreaRect.origin, gameAreaRect.origin + gameAreaRect.size, Color4F(50, 50, 50, 0.4));
     /////////////////
     int w = GetGameAreaSquareWidth();
-    _polygon = new Polygon(GetGameAreaCenter() - Vec2(w / 2, w / 2), Size(w,w));
+    _polygon = new Polygon(GetGameAreaCenter() - Vec2(w / 2, w / 2), Size(w, w));
     _polygon->Initial_Square(GetGameAreaCenter() - Vec2(w / 2, w / 2), w);
     //_polygon->Initial_Custom1(GetGameAreaCenter()-Vec2(w/2,w/2), w);
+    ////////////////
+    _currentArea = _startingAreaAfterLevelUp = _polygon->CalcArea();
 }
 
 Vec2 GameClassic::GetGameAreaCenter() {
@@ -80,25 +90,24 @@ void GameClassic::RenderPolygon() {
     _drawing_poly->clear();
     for (const pair<Vec2, Vec2> &seg: _polygon->GetSegments()) {
         _drawing_poly->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
-        _drawing_poly->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW);
-        _drawing_poly->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED);
+        //_drawing_poly->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW); // KEEP THIS LINE FOR DEBUGGING
+        //_drawing_poly->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED); // KEEP THIS LINE FOR DEBUGGING
     }
+
+    if (isCropperLinesValid) {
+        _drawing_poly->drawSegment(_cropperLine1.first, _cropperLine1.second, 2, Color4F::GRAY);
+        _drawing_poly->drawSegment(_cropperLine2.first, _cropperLine2.second, 2, Color4F::GRAY);
+    }
+
 }
 
 void GameClassic::InitialBall() {
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-    _ball = Ball::create("ball.png", &_polygon->GetSegments());
+    _ball = Ball::create("ball.png", &_polygon->GetSegments(), &_cropperLine1, &_cropperLine2);
     _ball->setPosition(GetGameAreaCenter() + Vec2(100, 100));
     _ball->SetVelocity(Vec2(500, 110));
     addChild(_ball);
-
-   IntialBallMovement();
-
-//    schedule([&](float dt)
-//             {
-//                 _ball->SetVelocity(Vec2((GetRand01()-0.5)*120, (GetRand01()-0.5)*120));
-//             }, 1, "ball_tick_velo");
-
+    IntialBallMovement();
 }
 
 Vec2 GameClassic::GetCropperOriginalPos() {
@@ -147,71 +156,38 @@ void GameClassic::InitCropper() {
             target->setPosition(GetCropperOriginalPos());
             // target set new direction
 
-            int dir = 0;
+            cropperDir = 0;
             auto directionName = _cropper->getName();
-            auto rotationNo = (int)(_cropper->getRotation() / 90.0f);
-            if (directionName == "line")
-            {
+            auto rotationNo = (int) (_cropper->getRotation() / 90.0f);
+            if (directionName == "line") {
                 if (rotationNo % 2 == 0)
-                    dir = 5;
+                    cropperDir = 5;
                 else
-                    dir = 6;
-            } else
-            {
+                    cropperDir = 6;
+            } else {
                 if (rotationNo % 4 == 0)
-                    dir = 1;
+                    cropperDir = 1;
                 else if (rotationNo % 4 == 1)
-                    dir = 2;
+                    cropperDir = 2;
                 else if (rotationNo % 4 == 2)
-                    dir = 3;
+                    cropperDir = 3;
                 else if (rotationNo % 4 == 3)
-                    dir = 4;
-            }
-            _polygon->Crop(locationGlobal, dir, _ball->getPosition());
-            _polyTransformInfo = _polygon->EstimateScaleUp();
-
-            if(_polyTransformInfo!= nullptr) {
-                unschedule("ball_tick");
-                _targetPolyAfterAnimation = new Polygon(*_polygon);
-                _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
-
-                _targetBallPos = _ball->getPosition();
-                _polyTransformInfo->TranformVec2(_targetBallPos);
-
-                schedule([&](float dt) {
-                    //
-                    // G("t=%f", _polyTransformInfo->_animationProgress01);
-                    const float ANIMATION_DUR = 2.0;
-                    _polyTransformInfo->_animationProgress01 += dt / ANIMATION_DUR;
-                    if (_polyTransformInfo->_animationProgress01 >= 0.25) {
-                        _polyTransformInfo->_animationProgress01 = 1;
-                        unschedule("scale_up");
-                        IntialBallMovement();
-                    }
-
-                    auto it_target = _targetPolyAfterAnimation->GetSegments().begin();
-                    auto it_live = _polygon->GetSegments().begin();
-
-                    while (it_target != _targetPolyAfterAnimation->GetSegments().end()) {
-                        it_live->first = it_live->first + _polyTransformInfo->_animationProgress01 * ( it_target->first-it_live->first);
-                        it_live->second = it_live->second + _polyTransformInfo->_animationProgress01 * ( it_target->second-it_live->second);
-                        it_target++;
-                        it_live++;
-                    }
-
-                    _ball->setPosition(_ball->getPosition()+ _polyTransformInfo->_animationProgress01*(_targetBallPos-_ball->getPosition()));
-
-
-                    RenderPolygon();
-                }, 1/60.0, "scale_up");
+                    cropperDir = 4;
             }
 
+            Vec2 dir1, dir2;
+            TranslateDir(cropperDir, dir1, dir2);
+            _cropperLine1.first = _cropperLine1.second = _cropperLine2.first = _cropperLine2.second = locationGlobal;
+            _cropperLineIntersectionPointWithPoly1 = _polygon->RayPos(locationGlobal, dir1);
+            _cropperLineIntersectionPointWithPoly2 = _polygon->RayPos(locationGlobal, dir2);
+            isCropperLinesValid = true;
+            _ball->SetCropperLinesValidity(true);
+            schedule(CC_CALLBACK_1(GameClassic::CropperLineAnimationRunner, this), 1 / 60.0, "cropper_line");
             RenderPolygon();
             SetCropper();
         } else {
             target->runAction(MoveTo::create(0.2, GetCropperOriginalPos()));
-            if (_isRotatable)
-            {
+            if (_isRotatable) {
                 _tapLabel->setVisible(true);
                 _arrows->setVisible(true);
             }
@@ -221,8 +197,6 @@ void GameClassic::InitCropper() {
             if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
                 _cropper->setRotation(_cropper->getRotation() + 90.0f);
         }
-
-        UpdateHud(100);
     };
 
     _arrows->setPosition(GetCropperOriginalPos());
@@ -234,6 +208,88 @@ void GameClassic::InitCropper() {
 
 }
 
+
+void GameClassic::CropperLineAnimationRunner(float dt) {
+    bool firstDone = false, secondDone = false;
+    Vec2 r1 = _cropperLineIntersectionPointWithPoly1 - _cropperLine1.second;
+    Vec2 r2 = _cropperLineIntersectionPointWithPoly2 - _cropperLine2.second;
+
+    float DRAW_SPEED = 6;
+
+    if (r1.length() > 10) {
+        r1.normalize();
+        _cropperLine1.second += DRAW_SPEED * r1;
+    } else {
+        _cropperLine1.second = _cropperLineIntersectionPointWithPoly1;
+        firstDone = true;
+    }
+
+    if (r2.length() > 10) {
+        r2.normalize();
+        _cropperLine2.second += DRAW_SPEED * r2;
+    } else {
+        _cropperLine2.second = _cropperLineIntersectionPointWithPoly2;
+        secondDone = true;
+    }
+
+    if (firstDone && secondDone) {
+        _ball->SetCropperLinesValidity(false);
+        unschedule("cropper_line");
+        Vec2 removedSideCenter;
+        _polygon->Crop(_cropperLine1.first, cropperDir, _ball->getPosition(), removedSideCenter);
+
+        _currentArea = _polygon->CalcArea();
+        float removedSoFar = _startingAreaAfterLevelUp - _currentArea;
+        float mustRemove = 0.7 * _startingAreaAfterLevelUp;
+        float progress = min(100.0, 100.0 * removedSoFar / mustRemove);
+        UpdateHud(progress);
+        if (progress >= 100) {
+            _polyTransformInfo = _polygon->EstimateScaleUp();
+            unschedule("ball_tick");
+            _targetPolyAfterAnimation = new Polygon(*_polygon);
+            _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
+
+            _targetBallPos = _ball->getPosition();
+            _polyTransformInfo->TranformVec2(_targetBallPos);
+            schedule(CC_CALLBACK_1(GameClassic::ScaleUpAnimationRunner, this), 1 / 60.0, "scale_up");
+        }
+        isCropperLinesValid = false;
+    }
+    RenderPolygon();
+}
+
+void GameClassic::ScaleUpAnimationRunner(float dt) {
+    const float ANIMATION_DUR = 2.0;
+    _polyTransformInfo->_animationProgress01 += dt / ANIMATION_DUR;
+    if (_polyTransformInfo->_animationProgress01 >= 0.25) {
+        _polyTransformInfo->_animationProgress01 = 1;
+        unschedule("scale_up");
+        _currentArea = _startingAreaAfterLevelUp = _polygon->CalcArea();
+        delete _targetPolyAfterAnimation;
+        _targetPolyAfterAnimation = nullptr;
+        IntialBallMovement();
+        return;
+    }
+
+    auto it_target = _targetPolyAfterAnimation->GetSegments().begin();
+    auto it_live = _polygon->GetSegments().begin();
+
+    while (it_target != _targetPolyAfterAnimation->GetSegments().end()) {
+        it_live->first =
+                it_live->first + _polyTransformInfo->_animationProgress01 * (it_target->first - it_live->first);
+        it_live->second =
+                it_live->second + _polyTransformInfo->_animationProgress01 * (it_target->second - it_live->second);
+        it_target++;
+        it_live++;
+    }
+
+    _ball->setPosition(
+            _ball->getPosition() + _polyTransformInfo->_animationProgress01 * (_targetBallPos - _ball->getPosition()));
+
+
+    RenderPolygon();
+}
+
 cocos2d::Rect GameClassic::GetGameAreaRect() {
 
     const auto center = GetGameAreaCenter();
@@ -243,8 +299,7 @@ cocos2d::Rect GameClassic::GetGameAreaRect() {
     return Rect(center + Vec2(-SEG_LEN / 2, -SEG_LEN / 2), Size(+SEG_LEN, SEG_LEN));
 }
 
-CropperImage GameClassic::GetInitialDirection() const
-{
+CropperImage GameClassic::GetInitialDirection() const {
     if (GetRand1N(2) == 1)
         return CropperImage::LINE;
 
@@ -258,20 +313,17 @@ void GameClassic::SetCropper() {
         _cropper = Sprite::create();
     }
 
-    if (_arrows == nullptr)
-    {
+    if (_arrows == nullptr) {
         _arrows = Node::create();
 
-        for (int i = 0; i < 2; ++i)
-        {
+        for (int i = 0; i < 2; ++i) {
             auto arrowSprite = Sprite::create("arrow.png");
             _arrows->addChild(arrowSprite);
             arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, 40));
             arrowSprite->setRotation(90 * i + 45);
         }
 
-        for (int i = 0; i < 2; ++i)
-        {
+        for (int i = 0; i < 2; ++i) {
             auto arrowSprite = Sprite::create("arrow.png");
             _arrows->addChild(arrowSprite);
             arrowSprite->setPosition(_arrows->getPosition() + Vec2(80 * i - 40, -40));
@@ -281,8 +333,8 @@ void GameClassic::SetCropper() {
         _arrows->runAction(RepeatForever::create(RotateBy::create(1.0f, 20.0f)));
 
         _tapLabel = Label::createWithSystemFont("Tap to rotate",
-                GameOptions::getInstance()->getMainFont(),
-                28);
+                                                GameOptions::getInstance()->getMainFont(),
+                                                28);
         addChild(_tapLabel);
         _tapLabel->setPosition(GetCropperOriginalPos() + Vec2(0.0f, 100.0f));
     }
@@ -323,23 +375,33 @@ void GameClassic::SetCropper() {
 
 void GameClassic::IntialBallMovement() {
     schedule([&](float dt) {
-        _ball->MoveBall(dt);
+        bool touchCropprLine = _ball->MoveBall(dt);
+        if(touchCropprLine) {
+            unschedule("ball_tick");
+            unschedule("cropper_line");
+
+            schedule([&](float){
+                auto s = Scene::create();
+                auto l = RestartScene::create();
+                s->addChild(l);
+                Director::getInstance()->replaceScene(s);
+            },1,"go_reset_menu");
+
+        }
     }, 1.0 / 60, "ball_tick");
 }
 
-void GameClassic::UpdateHud(int percentage)
-{
+void GameClassic::UpdateHud(int percentage) {
     // if percentage is 100 -> go to end then go back
     // if percentage is less than 100 -> go to it
 
-    FiniteTimeAction *setPercentage = CallFunc::create([&, percentage](){
+    FiniteTimeAction *setPercentage = CallFunc::create([&, percentage]() {
         _progressBar->setPercentage(percentage);
     });
 
     auto progressToPercent = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), percentage);
 
-    if (percentage == 100)
-    {
+    if (percentage == 100) {
         UserData::getInstance()->SetCurrentLevel(UserData::getInstance()->GetCurrentLevel() + 1);
         int bestScore = UserData::getInstance()->getHighScore();
         if (UserData::getInstance()->GetCurrentLevel() > bestScore) {
@@ -348,9 +410,13 @@ void GameClassic::UpdateHud(int percentage)
         auto progressToStart = ProgressFromTo::create(1.0f, _progressBar->getPercentage(), 0);
         _progressBar->runAction(Sequence::create(progressToPercent, setPercentage, progressToStart, nullptr));
         _levelLabel->setString(ToString(UserData::getInstance()->GetCurrentLevel()));
-    } else
-    {
+    } else {
         _progressBar->runAction(progressToPercent);
     }
 }
 
+
+GameClassic::~GameClassic() {
+    delete _polygon;
+    _polygon = nullptr;
+}

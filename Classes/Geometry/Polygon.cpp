@@ -1,5 +1,6 @@
 #include "Polygon.h"
-
+#include "HelperFunctions.h"
+#include "Geometry/TransformInfo.h"
 USING_NS_CC;
 using namespace std;
 
@@ -132,39 +133,13 @@ float Polygon::FindIntersectionPoint(Vec2 a_start, Vec2 a_end, Vec2 b_start, Vec
     return 0;
 }
 
-void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
+void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos, Vec2 &removedSideCenter) {
 
     if (false == IsPointInsidePolygon(pos))
         return;
 
     Vec2 dir1, dir2;
-    switch (dir) {
-        case 1: // Right,Down
-            dir1 = Vec2(1, 0);
-            dir2 = Vec2(0, -1);
-            break;
-        case 2:
-            dir1 = Vec2(0, -1);
-            dir2 = Vec2(-1, 0);
-            break;
-        case 3:
-            dir1 = Vec2(-1, 0);
-            dir2 = Vec2(0, 1);
-            break;
-        case 4:
-            dir1 = Vec2(0, 1);
-            dir2 = Vec2(1, 0);
-            break;
-        case 5:
-            dir1 = Vec2(0, 1);
-            dir2 = Vec2(0, -1);
-            break;
-        case 6:
-        default:
-            dir1 = Vec2(1, 0);
-            dir2 = Vec2(-1, 0);
-            break;
-    }
+    TranslateDir(dir, dir1, dir2);
 
 
     segListIterator_t it1, it2;
@@ -181,14 +156,29 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
 
     Polygon *poly1;
     Polygon *poly2;
-
     SplitPolygon(pos, it1, it2, rayCollisionPoint1, rayCollisionPoint2, poly1, poly2);
 
 
-    if (poly1->IsPointInsidePolygon(ballPos))
+    if (poly1->IsPointInsidePolygon(ballPos)) {
         *this = *poly1;
-    else
+        removedSideCenter = poly2->GetCenter();
+    }
+    else {
         *this = *poly2;
+        removedSideCenter = poly1->GetCenter();
+    }
+
+    delete poly1;
+    delete poly2;
+}
+
+cocos2d::Vec2 Polygon::GetCenter()
+{
+    Vec2 center = Vec2::ZERO;
+    for (const auto &seg: _segments)
+        center += seg.first;
+    center = center/_segments.size();
+    return center;
 }
 
 void Polygon::SplitPolygon(Vec2 &pos, const segListIterator_t &it1, const segListIterator_t &it2, Vec2 &rayCollisionPoint1,
@@ -261,12 +251,6 @@ void Polygon::ScaleUp(TransformInfo *ti)
 
 TransformInfo* Polygon::EstimateScaleUp()
 {
-    float newArea = this->CalcArea();
-    //CCLOG("New Area: %f", newArea);
-    if(newArea > 0.75*_area.width*_area.height)
-        return nullptr;
-
-
     float x_min, x_max, y_min, y_max;
     FindBoundaryXY(x_min, x_max, y_min, y_max);
 
@@ -276,12 +260,6 @@ TransformInfo* Polygon::EstimateScaleUp()
     float hScale = _area.height/polyheight;
 
     float scaleFactor = min(wScale, hScale);
-    if(scaleFactor<=1.02)
-        return nullptr;
-    //CCLOG("Scaling x%f", scaleFactor);
-
-    float gapBtw_leftBorder_and_leftMostPoint = x_min - _origin.x;
-    float gapBtw_bottomBorder_and_BottomMostPoint = y_min - _origin.y;
 
     auto t = new TransformInfo(_origin, x_min, y_min, x_max-x_min, y_max-y_min, scaleFactor,_area);
 

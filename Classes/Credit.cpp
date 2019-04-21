@@ -92,10 +92,14 @@ bool Credit::init()
     auto backButton = ui::Button::create("back.png");
     backButton->setPosition(origin + Vec2(visibleSize.width - backButton->getContentSize().width / 2, backButton->getContentSize().height / 2));
     backButton->addClickEventListener([&](Ref* sender){
-        auto main = MainMenu::create();
         auto scene = Scene::create();
-        scene->addChild(main);
+        scene->addChild(MainMenu::create());
         Director::getInstance()->replaceScene(scene);
+
+//        auto main = MainMenu::create();
+//        auto scene = Scene::create();
+//        scene->addChild(main);
+//        Director::getInstance()->replaceScene(scene);
     });
     addChild(backButton);
     backButton->setScale(0.6f);

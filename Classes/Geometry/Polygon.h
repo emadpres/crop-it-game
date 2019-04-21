@@ -3,11 +3,8 @@
 
 #include <list>
 #include "cocos2d.h"
-#include "TransformInfo.h"
-
-using seg_t = std::pair<cocos2d::Vec2, cocos2d::Vec2>;
-using segList_t = std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>>;
-using segListIterator_t = segList_t::iterator;
+#include "GeometryTypes.h"
+class TransformInfo;
 
 
 class Polygon {
@@ -28,14 +25,18 @@ public:
 
     void AddSegment(seg_t seg);
 
-    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos);
+    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos, cocos2d::Vec2 &removedSideCenter);
 
     bool IsPointInsidePolygon(cocos2d::Vec2 point) const;
 
     float CalcArea();
 
+    cocos2d::Vec2 GetCenter();
+
     TransformInfo* EstimateScaleUp();
     void ScaleUp(TransformInfo *ti);
+
+    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
 
 private:
     cocos2d::Vec2 _origin;
@@ -43,8 +44,6 @@ private:
     segList_t _segments;
 
     segListIterator_t Ray(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
-
-    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
 
     int RayCount(cocos2d::Vec2 startPos, cocos2d::Vec2 dir) const;
 
