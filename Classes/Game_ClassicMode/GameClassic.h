@@ -16,6 +16,7 @@ enum class CropperImage
 
 class GameClassic : public cocos2d::LayerColor {
 public:
+    virtual ~GameClassic();
     virtual bool init();
 
     CREATE_FUNC(GameClassic);

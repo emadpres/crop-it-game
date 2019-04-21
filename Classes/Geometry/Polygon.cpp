@@ -156,7 +156,6 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos, Vec2 &removedSideCenter) {
 
     Polygon *poly1;
     Polygon *poly2;
-
     SplitPolygon(pos, it1, it2, rayCollisionPoint1, rayCollisionPoint2, poly1, poly2);
 
 
@@ -168,6 +167,9 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos, Vec2 &removedSideCenter) {
         *this = *poly2;
         removedSideCenter = poly1->GetCenter();
     }
+
+    delete poly1;
+    delete poly2;
 }
 
 cocos2d::Vec2 Polygon::GetCenter()

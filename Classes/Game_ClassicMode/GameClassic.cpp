@@ -265,6 +265,8 @@ void GameClassic::ScaleUpAnimationRunner(float dt) {
         _polyTransformInfo->_animationProgress01 = 1;
         unschedule("scale_up");
         _currentArea = _startingAreaAfterLevelUp = _polygon->CalcArea();
+        delete _targetPolyAfterAnimation;
+        _targetPolyAfterAnimation = nullptr;
         IntialBallMovement();
     }
 
@@ -411,3 +413,8 @@ void GameClassic::UpdateHud(int percentage) {
     }
 }
 
+
+GameClassic::~GameClassic() {
+    delete _polygon;
+    _polygon = nullptr;
+}
