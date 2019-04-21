@@ -28,7 +28,6 @@
 #include "GameOptions.h"
 #include "UserData.h"
 #include "SimpleAudioEngine.h"
-#include "RestartScene.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -95,7 +94,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
     }
 
-    director->setDisplayStats(true);
+    director->setDisplayStats(false);
     director->setAnimationInterval(1.0f / 60);
 
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
@@ -110,7 +109,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     auto scene = Scene::create();
-    scene->addChild(RestartScene::create());
+    scene->addChild(MainMenu::create());
     director->runWithScene(scene);
 
     return true;
@@ -162,6 +161,6 @@ void AppDelegate::SetGameOptions()
 
 void AppDelegate::SetUserData()
 {
-    auto highScore = UserDefault::getInstance()->getIntegerForKey("CROPIT_HIGH_SCORE", 0);
+    auto highScore = UserData::getInstance()->getHighScore();
     UserData::getInstance()->setHighScore(highScore);
 }

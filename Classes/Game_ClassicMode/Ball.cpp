@@ -46,7 +46,8 @@ Vec2 Ball::CalcBallPossibleCollisionPos(const seg_t &line)
 {
     Vec2 ret, currentPos=getPosition();
 
-    if (line.first.x == line.second.x) { // Vertical Line
+
+    if (abs(line.first.x - line.second.x) < 0.1) { // Vertical Line
         if (_velocity.x > 0) {
             ret.x = currentPos.x + getContentSize().width / 2;
             ret.y = currentPos.y;
@@ -90,23 +91,6 @@ bool Ball::MoveBall(float dt) {
     }
 
     for (auto &seg : *_segments) {
-//        if (seg.first.x == seg.second.x) {
-//            if (_velocity.x > 0) {
-//                pos.x = currentPos.x + getContentSize().width / 2;
-//                pos.y = currentPos.y;
-//            } else {
-//                pos.x = currentPos.x - getContentSize().width / 2;
-//                pos.y = currentPos.y;
-//            }
-//        } else {
-//            if (_velocity.y > 0) {
-//                pos.x = currentPos.x;
-//                pos.y = currentPos.y + getContentSize().height / 2;
-//            } else {
-//                pos.x = currentPos.x;
-//                pos.y = currentPos.y - getContentSize().height / 2;
-//            }
-//        }
         pos = CalcBallPossibleCollisionPos(seg);
 
         //currentPos
@@ -117,8 +101,8 @@ bool Ball::MoveBall(float dt) {
                 _velocity.x *= -1.0f;
             else if (abs(seg.first.y - seg.second.y) < 0.1)
                 _velocity.y *= -1.0f;
-            else
-            CCLOG("INTERSECT!!!");
+
+//            CCLOG("INTERSECT!!!");
 //            auto marker = Sprite::create("marker.png");
 //            marker->setScale(10.0f);
 //            marker->setPosition(Vec2(seg.first.x + t * (seg.second.x - seg.first.x),

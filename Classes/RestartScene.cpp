@@ -17,7 +17,7 @@ bool RestartScene::init()
     addChild(bg);
     bg->setPosition(origin + visibleSize / 2);
 
-    auto container = cocos2d::Sprite::create("container.png");
+    auto container = cocos2d::Sprite::create("container2.png");
     addChild(container);
     container->setPosition(origin + cocos2d::Vec2(visibleSize.width / 2, visibleSize.height - container->getContentSize().height));
 
@@ -32,7 +32,7 @@ bool RestartScene::init()
 
     auto star = cocos2d::Sprite::create("star.png");
     container->addChild(star);
-    star->setPosition(origin + cocos2d::Vec2(0.0f, container->getContentSize().height / 2));
+    star->setPosition(origin + cocos2d::Vec2(0.0f, container->getContentSize().height / 2+10));
     star->setScale(0.8f);
 
     int highScore = UserData::getInstance()->getHighScore();
@@ -83,6 +83,7 @@ bool RestartScene::init()
     bestScoreLabel->setPosition(origin + visibleSize / 2 + cocos2d::Size(0.0f, visibleSize.height / 4));
     addChild(bestScoreLabel);
     bestScoreLabel->enableOutline(cocos2d::Color4B::BLACK);
+    bestScoreLabel->enableShadow();
 
     auto scoreLabel = cocos2d::Label::createWithSystemFont(ToString(UserData::getInstance()->getHighScore()),
                                                   GameOptions::getInstance()->getMainFont(), 65);

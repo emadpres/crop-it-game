@@ -15,6 +15,7 @@ public:
 
     cocos2d::Vec2 EstimateMove(float deltaTime) const;
 
+    void setColor(const cocos2d::Color3B& color) override {_ballSprite->setColor(color);}
     void SetVelocity(cocos2d::Vec2 v);
 
     bool MoveBall(float dt);

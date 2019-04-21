@@ -40,6 +40,7 @@ bool MainMenu::init()
     bestScoreLabel->setPosition(origin + visibleSize / 2 + Size(0.0f, visibleSize.height / 4));
     addChild(bestScoreLabel);
     bestScoreLabel->enableOutline(Color4B::BLACK);
+    bestScoreLabel->enableShadow();
 
     auto scoreLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->getHighScore()),
             GameOptions::getInstance()->getMainFont(), 65);

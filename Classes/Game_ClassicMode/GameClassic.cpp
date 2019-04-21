@@ -33,7 +33,7 @@ bool GameClassic::init() {
 
     _levelLabel = Label::createWithSystemFont(ToString(UserData::getInstance()->GetCurrentLevel()),
                                               GameOptions::getInstance()->getMainFont(), 50);
-    _levelLabel->setPosition(origin + Vec2(0.0f, container->getContentSize().height / 2));
+    _levelLabel->setPosition(origin + Vec2(container->getContentSize().width-74.0, container->getContentSize().height / 2));
     container->addChild(_levelLabel);
     _levelLabel->setTextColor(Color4B::BLACK);
     _levelLabel->enableBold();
@@ -41,7 +41,7 @@ bool GameClassic::init() {
     auto bar = Sprite::create("bar.png");
     _progressBar = ProgressTimer::create(bar);
     container->addChild(_progressBar);
-    _progressBar->setPosition(origin + container->getContentSize() / 2 + Size(-20.0f, 10.0f));
+    _progressBar->setPosition(origin + container->getContentSize() / 2 + Vec2(-65.0f, 8.0f));
     _progressBar->setType(ProgressTimer::Type::BAR);
     _progressBar->setMidpoint(Vec2(0.0f, 0.5f));
     _progressBar->setPercentage(0.0f);
@@ -387,14 +387,18 @@ void GameClassic::IntialBallMovement() {
     schedule([&](float dt) {
         bool touchCropprLine = _ball->MoveBall(dt);
         if(touchCropprLine) {
+            // Game Over
             unschedule("ball_tick");
             unschedule("cropper_line");
-
+            _arrows->stopAllActions();
+            _ball->runAction(Repeat::create(Sequence::createWithTwoActions(ScaleTo::create(0.1,0.8), ScaleTo::create(0.1,1.2)),3));
+            _ball->setColor(Color3B::RED);
             schedule([&](float){
                 auto s = Scene::create();
                 auto l = RestartScene::create();
                 s->addChild(l);
                 Director::getInstance()->replaceScene(s);
+
             },1,"go_reset_menu");
 
         }
