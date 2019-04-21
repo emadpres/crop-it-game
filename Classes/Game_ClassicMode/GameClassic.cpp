@@ -95,8 +95,8 @@ void GameClassic::RenderPolygon() {
     }
 
     if (isCropperLinesValid) {
-        _drawing_poly->drawSegment(_cropperLine1.first, _cropperLine1.second, 3, Color4F::ORANGE);
-        _drawing_poly->drawSegment(_cropperLine2.first, _cropperLine2.second, 3, Color4F::ORANGE);
+        _drawing_poly->drawSegment(_cropperLine1.first, _cropperLine1.second, 2, Color4F::GRAY);
+        _drawing_poly->drawSegment(_cropperLine2.first, _cropperLine2.second, 2, Color4F::GRAY);
     }
 
 }
@@ -377,6 +377,7 @@ void GameClassic::IntialBallMovement() {
         bool touchCropprLine = _ball->MoveBall(dt);
         if(touchCropprLine) {
             unschedule("ball_tick");
+            unschedule("cropper_line");
 
             schedule([&](float){
                 auto s = Scene::create();
