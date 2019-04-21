@@ -37,25 +37,29 @@ private:
 
     int GetGameAreaSquareWidth();
 
-    void BreakSegment(std::list<std::pair<cocos2d::Vec2, cocos2d::Vec2>>::iterator it, float breakRatio);
-
     void InitCropper();
-
-    void Crop(cocos2d::Vec2 pos, int dir);
-    int Crop(cocos2d::Vec2 star, cocos2d::Vec2 end);
 
     CropperImage GetInitialDirection() const;
 
     void SetCropper();
 
     cocos2d::Sprite *_cropper;
+    int cropperDir;
+    bool isCropperLinesValid;
     cocos2d::Node *_arrows;
     bool _isRotatable;
     cocos2d::Label *_tapLabel;
 
+    void ScaleUpAnimationRunner(float dt);
+    void CropperLineAnimationRunner(float dt);
     TransformInfo* _polyTransformInfo;
     Polygon *_targetPolyAfterAnimation;
     cocos2d::Vec2 _targetBallPos;
+
+
+    cocos2d::Vec2 _cropperDropPoint;
+    cocos2d::Vec2 _cropperLineIntersectionPointWithPoly1, _cropperLineIntersectionPointWithPoly2;
+    cocos2d::Vec2 _cropperLineEnd1, _cropperLineEnd2;
 
     void IntialBallMovement();
 

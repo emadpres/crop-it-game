@@ -1,4 +1,5 @@
 #include "Polygon.h"
+#include "HelperFunctions.h"
 
 USING_NS_CC;
 using namespace std;
@@ -138,33 +139,7 @@ void Polygon::Crop(Vec2 pos, int dir, Vec2 ballPos) {
         return;
 
     Vec2 dir1, dir2;
-    switch (dir) {
-        case 1: // Right,Down
-            dir1 = Vec2(1, 0);
-            dir2 = Vec2(0, -1);
-            break;
-        case 2:
-            dir1 = Vec2(0, -1);
-            dir2 = Vec2(-1, 0);
-            break;
-        case 3:
-            dir1 = Vec2(-1, 0);
-            dir2 = Vec2(0, 1);
-            break;
-        case 4:
-            dir1 = Vec2(0, 1);
-            dir2 = Vec2(1, 0);
-            break;
-        case 5:
-            dir1 = Vec2(0, 1);
-            dir2 = Vec2(0, -1);
-            break;
-        case 6:
-        default:
-            dir1 = Vec2(1, 0);
-            dir2 = Vec2(-1, 0);
-            break;
-    }
+    TranslateDir(dir, dir1, dir2);
 
 
     segListIterator_t it1, it2;

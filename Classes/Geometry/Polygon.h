@@ -37,14 +37,14 @@ public:
     TransformInfo* EstimateScaleUp();
     void ScaleUp(TransformInfo *ti);
 
+    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
+
 private:
     cocos2d::Vec2 _origin;
     cocos2d::Size _area;
     segList_t _segments;
 
     segListIterator_t Ray(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
-
-    cocos2d::Vec2 RayPos(cocos2d::Vec2 startPos, cocos2d::Vec2 dir);
 
     int RayCount(cocos2d::Vec2 startPos, cocos2d::Vec2 dir) const;
 
