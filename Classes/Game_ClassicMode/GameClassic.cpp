@@ -90,8 +90,8 @@ void GameClassic::RenderPolygon() {
     _drawing_poly->clear();
     for (const pair<Vec2, Vec2> &seg: _polygon->GetSegments()) {
         _drawing_poly->drawSegment(seg.first, seg.second, 3, Color4F::BLACK);
-        _drawing_poly->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW);
-        _drawing_poly->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED);
+        //_drawing_poly->drawSolidCircle(seg.first, 5, 0, 5, Color4F::YELLOW); // KEEP THIS LINE FOR DEBUGGING
+        //_drawing_poly->drawSolidCircle(seg.second, 5, 0, 5, Color4F::RED); // KEEP THIS LINE FOR DEBUGGING
     }
 
     if (isCropperLinesValid) {
@@ -268,6 +268,7 @@ void GameClassic::ScaleUpAnimationRunner(float dt) {
         delete _targetPolyAfterAnimation;
         _targetPolyAfterAnimation = nullptr;
         IntialBallMovement();
+        return;
     }
 
     auto it_target = _targetPolyAfterAnimation->GetSegments().begin();
