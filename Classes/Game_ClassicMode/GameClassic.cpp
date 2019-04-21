@@ -46,7 +46,9 @@ bool GameClassic::init() {
     container->setPosition(Vec2(origin.x + visibleSize.width / 2,
                                 origin.y + visibleSize.height - _levelLabel->getContentSize().height -
                                 container->getContentSize().height));
+
     addChild(container);
+
 
     _drawing_bg = DrawNode::create();
     _drawing_poly = DrawNode::create();
@@ -69,6 +71,8 @@ void GameClassic::InitialGameArea() {
     _polygon = new Polygon(GetGameAreaCenter() - Vec2(w / 2, w / 2), Size(w, w));
     _polygon->Initial_Square(GetGameAreaCenter() - Vec2(w / 2, w / 2), w);
     //_polygon->Initial_Custom1(GetGameAreaCenter()-Vec2(w/2,w/2), w);
+    ////////////////
+    _currentArea = _startingAreaAfterLevelUp = _polygon->CalcArea();
 }
 
 Vec2 GameClassic::GetGameAreaCenter() {
@@ -103,7 +107,6 @@ void GameClassic::InitialBall() {
     _ball->setPosition(GetGameAreaCenter() + Vec2(100, 100));
     _ball->SetVelocity(Vec2(500, 110));
     addChild(_ball);
-
     IntialBallMovement();
 
 //    schedule([&](float dt)
@@ -185,7 +188,6 @@ void GameClassic::InitCropper() {
             _cropperLineIntersectionPointWithPoly2 = _polygon->RayPos(locationGlobal, dir2);
             isCropperLinesValid = true;
             schedule(CC_CALLBACK_1(GameClassic::CropperLineAnimationRunner, this), 1 / 60.0, "cropper_line");
-
             RenderPolygon();
             SetCropper();
         } else {
@@ -200,8 +202,6 @@ void GameClassic::InitCropper() {
             if (locationGlobal.distance(GetCropperOriginalPos()) < 30)
                 _cropper->setRotation(_cropper->getRotation() + 90.0f);
         }
-
-        UpdateHud(100);
     };
 
     _arrows->setPosition(GetCropperOriginalPos());
@@ -241,10 +241,17 @@ void GameClassic::CropperLineAnimationRunner(float dt) {
 
     if(firstDone && secondDone) {
         unschedule("cropper_line");
-        _polygon->Crop(_cropperDropPoint, cropperDir, _ball->getPosition());
-        _polyTransformInfo = _polygon->EstimateScaleUp();
+        Vec2 removedSideCenter;
+        _polygon->Crop(_cropperDropPoint, cropperDir, _ball->getPosition(), removedSideCenter);
 
-        if(_polyTransformInfo!= nullptr) {
+        _currentArea = _polygon->CalcArea();
+        float removedSoFar = _startingAreaAfterLevelUp-_currentArea;
+        float mustRemove = 0.7*_startingAreaAfterLevelUp;
+        float progress = min(100.0, 100.0*removedSoFar/mustRemove);
+        UpdateHud(progress);
+        if(progress>=100)
+        {
+            _polyTransformInfo = _polygon->EstimateScaleUp();
             unschedule("ball_tick");
             _targetPolyAfterAnimation = new Polygon(*_polygon);
             _targetPolyAfterAnimation->ScaleUp(_polyTransformInfo);
@@ -264,6 +271,7 @@ void GameClassic::ScaleUpAnimationRunner(float dt) {
     if (_polyTransformInfo->_animationProgress01 >= 0.25) {
         _polyTransformInfo->_animationProgress01 = 1;
         unschedule("scale_up");
+        _currentArea = _startingAreaAfterLevelUp = _polygon->CalcArea();
         IntialBallMovement();
     }
 

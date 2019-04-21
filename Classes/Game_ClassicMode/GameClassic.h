@@ -57,6 +57,9 @@ private:
     cocos2d::Vec2 _targetBallPos;
 
 
+    double _startingAreaAfterLevelUp, _currentArea;
+
+
     cocos2d::Vec2 _cropperDropPoint;
     cocos2d::Vec2 _cropperLineIntersectionPointWithPoly1, _cropperLineIntersectionPointWithPoly2;
     cocos2d::Vec2 _cropperLineEnd1, _cropperLineEnd2;

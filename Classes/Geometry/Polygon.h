@@ -28,11 +28,13 @@ public:
 
     void AddSegment(seg_t seg);
 
-    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos);
+    void Crop(cocos2d::Vec2 pos, int dir, cocos2d::Vec2 ballPos, cocos2d::Vec2 &removedSideCenter);
 
     bool IsPointInsidePolygon(cocos2d::Vec2 point) const;
 
     float CalcArea();
+
+    cocos2d::Vec2 GetCenter();
 
     TransformInfo* EstimateScaleUp();
     void ScaleUp(TransformInfo *ti);
