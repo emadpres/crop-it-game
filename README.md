@@ -1,7 +1,7 @@
 # Crop It
 This is an open-source game written with Cocso2d-x engine during a weekend. It's about a polygon which you must crop it repeatedly. The more you shrink it, the more score you collect.
 
-![](screens/gameplay-sample.gif)
+![(gameplay-demo-gif](screens/gameplay-sample.gif)
 
 
 
